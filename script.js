@@ -1,26 +1,26 @@
 let hasWon = false;
 const slider = document.getElementById('loveSlider');
 const sound = document.getElementById('achievementSound');
+const startScreen = document.getElementById('start-screen');
+const startBtn = document.getElementById('start-btn');
 
-// --- 1. PREPARAR EL SONIDO (DESBLOQUEO MÓVIL) ---
-// Esto es vital: Apenas tocas el slider para empezar,
-// cargamos el audio en silencio. Así el navegador ya tiene "permiso"
-// para sonarlo fuerte cuando llegues a la meta.
-slider.addEventListener('touchstart', unlockAudio, { once: true });
-slider.addEventListener('mousedown', unlockAudio, { once: true });
-
-function unlockAudio() {
-    sound.volume = 0.1; // Volumen bajito para desbloquear
+// --- 1. LÓGICA DE INICIO (CLICK MÁGICO) ---
+startBtn.addEventListener('click', () => {
+    // Al hacer clic, reproducimos silencio para desbloquear el audio
+    sound.volume = 0; 
     sound.play().then(() => {
         sound.pause();
-        sound.currentTime = 0; // Lo regresamos al inicio
-        sound.volume = 1.0; // Lo dejamos listo con volumen alto
-    }).catch(e => {
-        console.log("Audio esperando interacción...");
+        sound.currentTime = 0;
+        console.log("Audio desbloqueado y listo 🔊");
+    }).catch(error => {
+        console.log("Error al intentar desbloquear:", error);
     });
-}
 
-// --- DIFICULTAD (Retroceso) ---
+    // Ocultamos la pantalla de inicio
+    startScreen.classList.add('hidden');
+});
+
+// --- 2. DIFICULTAD (El slider regresa) ---
 slider.addEventListener('touchend', slideBack);
 slider.addEventListener('mouseup', slideBack);
 
@@ -45,7 +45,7 @@ function updateKmText(val) {
     if (!hasWon) { kmText.innerText = currentKm + " km restantes"; }
 }
 
-// --- LÓGICA PRINCIPAL ---
+// --- 3. LÓGICA PRINCIPAL (GANAR) ---
 function checkHug() {
     if (hasWon) { slider.value = 100; return; }
 
@@ -59,19 +59,18 @@ function checkHug() {
 
     updateKmText(value);
 
-    // --- ¡AQUÍ ES EL MOMENTO EXACTO! (Llegó a la meta) ---
+    // --- ¡VICTORIA! ---
     if (value >= 99) {
         hasWon = true; 
 
-        // 1. SONIDO (Disparo inmediato) 🔊
-        // Lo ponemos primero para ganar milisegundos
-        sound.currentTime = 0; // Asegura que empiece desde el segundo 0
-        sound.play().catch(e => console.log("Error audio"));
+        // A. SONIDO (¡Ahora sí!) 🔊
+        sound.volume = 1.0; 
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log("Error final:", e));
 
-        // 2. ANIMACIÓN VISUAL (Sincronizada) 🏆
+        // B. VISUALES 🏆
         achievement.classList.add('show');
         
-        // 3. RESTO DE EFECTOS
         kmText.innerText = "¡Juntas! ❤️";
         body.style.backgroundColor = "#ffcdd2"; 
         
@@ -86,7 +85,6 @@ function checkHug() {
             slider.disabled = true;
         }
 
-        // Ocultar logro visualmente a los 5 segundos
         setTimeout(() => { achievement.classList.remove('show'); }, 5000);
     }
 }
