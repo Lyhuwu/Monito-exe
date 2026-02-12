@@ -10,11 +10,19 @@
 </head>
 <body>
 
-    <audio id="achievementSound" src="xbox.mp3" preload="auto"></audio>
+    <div id="start-screen" class="start-overlay">
+        <h1>¡Hola Monky! 🐒</h1>
+        <p>Sube el volumen y toca el botón para comenzar</p>
+        <button id="start-btn">¡COMENZAR MISIÓN! 🚀</button>
+    </div>
+
+    <audio id="achievementSound" preload="auto">
+        <source src="https://lyhuwu.github.io/Monito.exe/xbox.mp3" type="audio/mpeg">
+    </audio>
 
     <div id="achievement" class="xbox-achievement">
         <div class="xbox-icon">
-            <img src="fotos/icono-logrooos.gif" alt="Logro GIF" class="gif-icon">
+            <img src="fotos/icono-logro.gif" alt="Logro GIF" class="gif-icon">
         </div>
         <div class="xbox-content">
             <div class="xbox-title">Logro desbloqueado</div>
