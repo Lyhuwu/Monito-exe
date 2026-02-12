@@ -2,24 +2,25 @@ let hasWon = false;
 const slider = document.getElementById('loveSlider');
 const sound = document.getElementById('achievementSound');
 
-// --- TRUCO DE SINCRONIZACIÓN ---
-// Apenas toques el slider para empezar a jugar, 
-// cargamos el audio en silencio. Así estará listo para el final.
-slider.addEventListener('touchstart', prepareAudio, { once: true });
-slider.addEventListener('mousedown', prepareAudio, { once: true });
+// --- 1. PREPARAR EL SONIDO (DESBLOQUEO MÓVIL) ---
+// Esto es vital: Apenas tocas el slider para empezar,
+// cargamos el audio en silencio. Así el navegador ya tiene "permiso"
+// para sonarlo fuerte cuando llegues a la meta.
+slider.addEventListener('touchstart', unlockAudio, { once: true });
+slider.addEventListener('mousedown', unlockAudio, { once: true });
 
-function prepareAudio() {
-    // Reproducimos silencio para "despertar" al navegador
-    sound.volume = 0; 
+function unlockAudio() {
+    sound.volume = 0.1; // Volumen bajito para desbloquear
     sound.play().then(() => {
         sound.pause();
-        sound.currentTime = 0;
+        sound.currentTime = 0; // Lo regresamos al inicio
+        sound.volume = 1.0; // Lo dejamos listo con volumen alto
     }).catch(e => {
-        console.log("Audio esperando...");
+        console.log("Audio esperando interacción...");
     });
 }
 
-// --- DIFICULTAD ---
+// --- DIFICULTAD (Retroceso) ---
 slider.addEventListener('touchend', slideBack);
 slider.addEventListener('mouseup', slideBack);
 
@@ -58,18 +59,18 @@ function checkHug() {
 
     updateKmText(value);
 
-    // --- ¡MOMENTO EXACTO! ---
+    // --- ¡AQUÍ ES EL MOMENTO EXACTO! (Llegó a la meta) ---
     if (value >= 99) {
         hasWon = true; 
-        
-        // 1. DISPARAR ANIMACIÓN VISUAL
+
+        // 1. SONIDO (Disparo inmediato) 🔊
+        // Lo ponemos primero para ganar milisegundos
+        sound.currentTime = 0; // Asegura que empiece desde el segundo 0
+        sound.play().catch(e => console.log("Error audio"));
+
+        // 2. ANIMACIÓN VISUAL (Sincronizada) 🏆
         achievement.classList.add('show');
         
-        // 2. DISPARAR AUDIO (Inmediatamente después)
-        // Subimos volumen y damos play
-        sound.volume = 1.0; 
-        sound.play().catch(e => console.log("Audio bloqueado por navegador"));
-
         // 3. RESTO DE EFECTOS
         kmText.innerText = "¡Juntas! ❤️";
         body.style.backgroundColor = "#ffcdd2"; 
@@ -85,7 +86,7 @@ function checkHug() {
             slider.disabled = true;
         }
 
-        // Ocultar logro a los 5 segundos
+        // Ocultar logro visualmente a los 5 segundos
         setTimeout(() => { achievement.classList.remove('show'); }, 5000);
     }
 }
