@@ -1,20 +1,37 @@
 let hasWon = false;
 const slider = document.getElementById('loveSlider');
-// Referencia al sonido
 const sound = document.getElementById('achievementSound');
 
-// --- DIFICULTAD ---
+// --- HACK: DESBLOQUEAR AUDIO EN MÓVIL ---
+// Los celulares no dejan sonar nada si no hay un toque previo.
+// Esto carga el sonido en silencio al primer toque para tenerlo listo.
+document.body.addEventListener('touchstart', unlockAudio, { once: true });
+document.body.addEventListener('click', unlockAudio, { once: true });
+
+function unlockAudio() {
+    // Intentamos reproducir y pausar inmediatamente
+    sound.play().then(() => {
+        sound.pause();
+        sound.currentTime = 0;
+    }).catch(e => console.log("Audio esperando interacción..."));
+}
+
+// --- DIFICULTAD (Retroceso) ---
 slider.addEventListener('touchend', slideBack);
 slider.addEventListener('mouseup', slideBack);
 
 function slideBack() {
     if (hasWon) return;
     let currentValue = parseInt(slider.value);
+    
+    // Si suelta antes de llegar al final
     if (currentValue < 99) {
         let interval = setInterval(() => {
             if (hasWon) { clearInterval(interval); return; }
+            
             slider.value = parseInt(slider.value) - 2; 
             updateKmText(slider.value);
+            
             if (slider.value <= 0) { clearInterval(interval); }
         }, 15);
     }
@@ -41,7 +58,7 @@ function checkHug() {
 
     updateKmText(value);
 
-    // --- ¡MOMENTO DE GANAR! ---
+    // --- ¡GANASTE! ---
     if (value >= 99) {
         hasWon = true; 
         kmText.innerText = "¡Juntas! ❤️";
@@ -50,15 +67,15 @@ function checkHug() {
         slider.classList.add('hide-thumb');
         hugSticker.classList.add('show');
         
-        // 1. Mostrar Logro Visual
+        // 1. Mostrar Logro
         achievement.classList.add('show');
         
-        // 2. REPRODUCIR SONIDO (Justo aquí) 🔊
-        // Como el usuario está interactuando con el slider, el sonido se permitirá sin problemas
-        sound.volume = 0.5; // Volumen al 50% (opcional, ajústalo si quieres)
-        sound.play().catch(error => console.log("Error al reproducir audio:", error));
+        // 2. REPRODUCIR SONIDO 🔊
+        sound.volume = 1.0; 
+        sound.currentTime = 0; // Reiniciar por si acaso
+        sound.play().catch(error => alert("Error de audio: " + error)); // Esto te dirá si algo falla
 
-        // Ocultar logro a los 5 segundos
+        // Ocultar logro a los 5 seg
         setTimeout(() => { achievement.classList.remove('show'); }, 5000);
 
         body.style.backgroundColor = "#ffcdd2"; 
