@@ -8,7 +8,9 @@ body {
 }
 
 canvas {
+    /* Aquí pusimos tu GIF de fondo si lo usaste */
     background: linear-gradient(to bottom, #81d4fa, #e1f5fe);
+    background-size: cover; background-position: center;
     border: 4px solid #880e4f;
     border-radius: 15px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
@@ -16,20 +18,39 @@ canvas {
     display: block;
 }
 
+/* --- CAPAS (Overlays) --- */
 .overlay {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; flex-direction: column; 
     justify-content: center; align-items: center;
     background: rgba(252, 228, 236, 0.98); 
-    z-index: 20; transition: opacity 0.5s;
+    z-index: 20; 
+    /* Transición suave SOLO para inicio y game over */
+    transition: opacity 0.3s; 
 }
 .hidden { opacity: 0; pointer-events: none; z-index: -1; }
 .center-content { text-align: center; }
 
+/* --- CORRECCIÓN DEL RETRASO --- */
+/* La pantalla final NO debe tener transición suave, debe ser INSTANTÁNEA */
+#finalScreen {
+    transition: none !important;
+}
+
+/* Animación del Abrazo (Más rápida y explosiva) */
+.hug-container { 
+    position: relative; 
+    text-align: center; 
+    /* Antes era 0.8s, ahora 0.3s (Mucho más rápido) */
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+@keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+
+/* Textos y Botones */
 h1 { color: #880e4f; font-size: 2rem; margin: 0 0 10px 0; text-align: center; }
 p { color: #d81b60; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; text-align: center; padding: 0 20px;}
 
-/* Botones */
 button {
     background: #d81b60; color: white; border: none;
     padding: 20px 50px; font-size: 1.5rem; border-radius: 50px;
@@ -51,10 +72,7 @@ button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
 .letter-box h2 { color: #d81b60; margin: 0; }
 .letter-box p { font-size: 0.9rem; color: #555; }
 
-/* Animación Entrada */
-.hug-container { position: relative; text-align: center; animation: popIn 0.8s; }
-@keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-
+/* Gif Logro */
 #achievement-gif {
     position: fixed; top: 10px; left: 50%; transform: translateX(-50%); 
     z-index: 9999; width: 350px; max-width: 90%; display: none;
