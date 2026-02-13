@@ -1,4 +1,4 @@
-/* --- CONFIGURACIÓN BASE --- */
+/* --- BASE --- */
 html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     background-color: #222; overflow: hidden; 
@@ -15,30 +15,37 @@ canvas {
 .overlay-container {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(252, 228, 236, 0.98); 
-    z-index: 100; /* Asegura que esté sobre el canvas */
+    z-index: 100;
     display: flex; flex-direction: column;
     justify-content: center; align-items: center;
 }
 
 .content-box { 
-    text-align: center; 
-    display: flex; flex-direction: column; align-items: center; 
-    z-index: 101; /* Contenido sobre el fondo */
+    text-align: center; display: flex; flex-direction: column; align-items: center; 
+    z-index: 101;
 }
 
 /* Clases de utilidad */
 .hidden-layer { display: none !important; }
 .final-overlay { background: transparent !important; pointer-events: none; }
 
-/* 🟢 ANIMACIÓN POP-IN (Inflado) */
+/* 🟢 ANIMACIÓN POP (Visible Inmediatamente) */
 @keyframes popIn {
-    0% { transform: scale(0); opacity: 0; }
-    60% { transform: scale(1.15); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
+    0% { opacity: 0; transform: scale(0); }
+    60% { opacity: 1; transform: scale(1.15); } /* Rebote */
+    100% { opacity: 1; transform: scale(1); }
 }
 
 .animate-pop {
+    /* Se asegura que sea visible y ejecute la animación */
+    opacity: 1 !important; 
     animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+/* Estado inicial del sticker (Invisible antes de ganar) */
+#stickerAbacho {
+    opacity: 0;
+    transform: scale(0);
 }
 
 /* --- ESTILOS VISUALES --- */
@@ -50,11 +57,11 @@ button {
     padding: 18px 60px; font-size: 1.5rem; border-radius: 50px;
     cursor: pointer; box-shadow: 0 6px 0 #ad1457;
     font-weight: bold; font-family: 'Fredoka';
-    touch-action: manipulation; /* Mejora respuesta táctil */
-    position: relative; z-index: 102; /* Botón clickable siempre */
+    touch-action: manipulation; position: relative; z-index: 102;
 }
 button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
 
+.hug-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; }
 .hug-img { width: 280px; height: auto; margin-bottom: 15px; }
 
 .letter-box {
@@ -67,4 +74,4 @@ button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
     position: fixed; top: 20px; width: 100%;
     display: flex; justify-content: center; z-index: 1000;
 }
-#achievement-gif { width: 400px; max-width: 90%; }
+#achievement-gif { width: 403px; max-width: 90%; }
