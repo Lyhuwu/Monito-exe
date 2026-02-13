@@ -81,17 +81,16 @@ function triggerFinalHug() {
     const achievementGif = document.getElementById("achievement-gif");
 
     // --- ACTIVACIÓN ---
-    // 1. Mostrar Logro (Método clásico)
+    // 1. Mostrar Logro
     achievementLayer.classList.remove("hidden-layer");
 
-    // 2. Mostrar Pantalla Final (Método Ghost: Solo cambiamos opacidad)
-    // Al añadir .visible, pasa de opacity:0 a opacity:1 instantáneamente
+    // 2. Mostrar Pantalla Final (Ghost Rendering: visible al instante)
     finalScreen.classList.add("visible");
 
-    // 3. Sticker Pop
-    sticker.classList.remove("animate-pop");
-    void sticker.offsetWidth; 
-    sticker.classList.add("animate-pop");
+    // 3. Sticker Pop ÉPICO (Cambio de clase aquí)
+    sticker.classList.remove("epic-sticker-anim");
+    void sticker.offsetWidth; // Reflow crítico
+    sticker.classList.add("epic-sticker-anim");
 
     // 4. Multimedia
     document.getElementById("winSound").play().catch(()=>{});
