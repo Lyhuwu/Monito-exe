@@ -21,19 +21,20 @@
     <canvas id="gameCanvas"></canvas>
 
     <div id="startScreen" class="overlay">
-        <div class="center-box">
+        <div class="center-content">
             <h1>MONKY FLY 🐒✈️</h1>
             <img src="fotos/inicio.gif" alt="Intro" class="start-img" onerror="this.style.display='none'">
             <p>Esquiva y llega a mis brazos.<br>Meta: <b>7 Puntos</b></p>
-            <button onclick="iniciarJuego()" id="btnStart">¡JUGAR!</button>
+            
+            <button id="btnStart" onclick="iniciarJuegoGlobal()">¡JUGAR!</button>
         </div>
     </div>
 
     <div id="gameOverScreen" class="overlay invisible">
-        <div class="center-box">
+        <div class="center-content">
             <h1>¡CHOCASTE! 💥</h1>
             <p>No te rindas, mi amor.<br>¡Inténtalo de nuevo!</p>
-            <button onclick="reiniciarJuego()" id="btnRetry">REINTENTAR ↺</button>
+            <button onclick="reiniciarJuegoGlobal()">REINTENTAR ↺</button>
         </div>
     </div>
 
