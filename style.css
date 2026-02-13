@@ -17,36 +17,33 @@ canvas {
     background: rgba(252, 228, 236, 0.98); 
     z-index: 100;
     display: flex; flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    justify-content: center; /* Centro Vertical */
+    align-items: center;     /* Centro Horizontal */
 }
 
 .content-box { text-align: center; display: flex; flex-direction: column; align-items: center; }
+
+/* Capas ocultas */
 .hidden-layer { display: none !important; }
 
+/* Pantalla final transparente */
 .final-overlay { 
     background: transparent !important; 
     pointer-events: none;
-    /* Centrado para la pantalla final */
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-/* 🟢 NUEVA ANIMACIÓN DE REBOTE (BOUNCE-IN) */
-@keyframes bounceIn {
-    0% { opacity: 0; transform: scale(.3); }
-    50% { opacity: 1; transform: scale(1.05); }
-    70% { transform: scale(.9); }
-    100% { transform: scale(1); }
+/* 🟢 ANIMACIÓN DE INFLADO (POP-IN) */
+@keyframes inflarSticker {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.2); opacity: 1; } /* Se infla un poco más */
+    100% { transform: scale(1); opacity: 1; }  /* Se asienta en su tamaño */
 }
 
 .animate-pop {
-    /* Usamos la nueva animación bounceIn */
-    animation: bounceIn 0.8s cubic-bezier(0.215, 0.610, 0.355, 1.000) both !important;
+    animation: inflarSticker 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
 }
 
-/* --- ELEMENTOS --- */
+/* --- ELEMENTOS UI --- */
 h1 { color: #880e4f; font-size: 2.2rem; margin-bottom: 10px; }
 p { color: #d81b60; font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; }
 
@@ -58,15 +55,13 @@ button {
 }
 
 .hug-wrapper {
-    /* Aseguramos que el contenido también esté centrado */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%;
 }
 
 .hug-img { 
     width: 280px; height: auto; margin-bottom: 15px; 
-    opacity: 0; /* Estado inicial invisible */
+    opacity: 0; transform: scale(0); /* Invisible hasta ganar */
 }
 
 .letter-box {
@@ -81,7 +76,6 @@ button {
 }
 
 #achievement-gif { 
-    /* Aumentado un 15% */
-    width: 403px; 
+    width: 400px; /* Aumentado 15% (era ~350px) */
     max-width: 90%; 
 }
