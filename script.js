@@ -36,7 +36,7 @@ const pipes = {
             if(p.x + 65 <= 0) {
                 this.items.shift(); score++;
                 document.getElementById("scoreSound").play().catch(()=>{});
-                // ⚠️ AQUÍ CAMBIÓ: Ahora llamamos a la cinemática, no al final directo
+                // Al llegar a 7, iniciamos la cinemática
                 if(score >= WIN_SCORE) startCinematicEnding();
             }
         }
@@ -72,32 +72,30 @@ function gameOverGlobal() {
     document.getElementById("gameOverScreen").classList.remove("hidden-layer");
 }
 
-// --- LÓGICA DE CINEMÁTICA (RECUPERADA) ---
+// --- CINEMÁTICA LENTA (ROMÁNTICA) ---
 let goalX = 0, goalY = 0;
 
 function startCinematicEnding() {
     gameState = 'MOVING_TO_HUG'; 
-    pipes.items = []; // Limpiamos tuberías para que no estorben
-    // Definimos dónde aparecerá la meta (un poco a la derecha y centrado)
+    pipes.items = []; 
     goalX = canvas.width * 0.8; 
     goalY = canvas.height / 2 - 35;
 }
 
 function animateEnding() {
-    // Dibujamos la meta
     ctx.drawImage(imgGoal, goalX, goalY, 70, 70);
     
-    // Calculamos distancia
     let dx = goalX - monky.x;
     let dy = goalY - monky.y;
     
-    // Movemos al monito hacia la meta (velocidad 0.04 para que se note el viaje)
-    monky.x += dx * 0.04;
-    monky.y += dy * 0.04;
+    // 🟢 CAMBIO DE VELOCIDAD: 
+    // Antes era 0.04 (rápido). Ahora es 0.02 (lento y suave).
+    monky.x += dx * 0.02;
+    monky.y += dy * 0.02;
     
     monky.draw();
 
-    // Si está muy cerca (menos de 5px), activamos el abrazo final
+    // Cuando están muy cerca (menos de 5px), se abrazan
     if (Math.abs(dx) < 5 && Math.abs(dy) < 5) triggerFinalHug();
 }
 
@@ -114,12 +112,12 @@ function triggerFinalHug() {
     // 1. Mostrar Logro
     achievementLayer.classList.remove("hidden-layer");
 
-    // 2. Mostrar Pantalla Final (Ghost Rendering: visible al instante)
+    // 2. Mostrar Pantalla Final (Ghost Rendering)
     finalScreen.classList.add("visible");
 
     // 3. Sticker con animación "Inflado Suave"
     sticker.classList.remove("sticker-inflate");
-    void sticker.offsetWidth; // Reflow
+    void sticker.offsetWidth; 
     sticker.classList.add("sticker-inflate");
 
     // 4. Multimedia
@@ -142,7 +140,6 @@ function loop() {
         ctx.fillText(score, canvas.width/2 - 15, 80);
         frames++; gameLoopId = requestAnimationFrame(loop);
     } 
-    // ⚠️ RECUPERADO: El estado de cinemática
     else if (gameState === 'MOVING_TO_HUG') {
         animateEnding();
         gameLoopId = requestAnimationFrame(loop);
