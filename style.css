@@ -1,127 +1,70 @@
-let canvas, ctx, frames = 0, score = 0, gameLoopId, gameState = 'START';
-const WIN_SCORE = 7;
-
-// --- OBJETOS ---
-const monky = {
-    x: 50, y: 0, width: 60, height: 60, speed: 0, gravity: 0.18, jump: 4.0,
-    draw: function() { if(imgPlayer.complete) ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height); },
-    update: function() {
-        if (gameState === 'PLAYING') {
-            this.speed += this.gravity; this.y += this.speed;
-            if(this.y + this.height >= canvas.height || this.y <= 0) gameOverGlobal();
-        }
-    },
-    flap: function() {
-        if (gameState === 'PLAYING') {
-            this.speed = -this.jump;
-            let jS = document.getElementById("jumpSound");
-            jS.currentTime = 0; jS.play().catch(()=>{});
-        }
-    }
-};
-
-const pipes = {
-    items: [], dx: 3, gap: 220,
-    update: function() {
-        if (gameState !== 'PLAYING') return;
-        if(frames % 120 === 0) { 
-            let yPos = Math.floor(Math.random() * (canvas.height - this.gap - 100)) + 100;
-            this.items.push({ x: canvas.width, y: yPos });
-        }
-        for(let i = 0; i < this.items.length; i++) {
-            let p = this.items[i]; p.x -= this.dx;
-            if (monky.x + 10 < p.x + 65 && monky.x + 50 > p.x) {
-                if (monky.y + 10 < p.y || monky.y + 50 > p.y + this.gap) gameOverGlobal();
-            }
-            if(p.x + 65 <= 0) {
-                this.items.shift(); score++;
-                document.getElementById("scoreSound").play().catch(()=>{});
-                if(score >= WIN_SCORE) triggerFinalHug();
-            }
-        }
-    },
-    draw: function() {
-        ctx.fillStyle = "#ffcdd2"; ctx.strokeStyle = "#880e4f"; ctx.lineWidth = 3;
-        for(let p of this.items) {
-            ctx.fillRect(p.x, 0, 65, p.y); ctx.strokeRect(p.x, -2, 65, p.y + 2);
-            ctx.fillRect(p.x, p.y + this.gap, 65, canvas.height); ctx.strokeRect(p.x, p.y + this.gap, 65, canvas.height + 2);
-        }
-    },
-    reset: function() { this.items = []; }
-};
-
-const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
-const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png";
-
-// --- FUNCIONES GLOBALES ---
-window.iniciarJuegoGlobal = function() {
-    console.log("Iniciando juego..."); // Debug
-    document.getElementById("startScreen").classList.add("hidden-layer");
-    gameState = 'PLAYING'; score = 0; frames = 0; monky.y = canvas.height / 2;
-    pipes.reset(); loop();
-};
-
-window.reiniciarJuegoGlobal = function() {
-    document.getElementById("gameOverScreen").classList.add("hidden-layer");
-    gameState = 'PLAYING'; score = 0; frames = 0; monky.y = canvas.height / 2;
-    pipes.reset(); loop();
-};
-
-function gameOverGlobal() {
-    gameState = 'END'; cancelAnimationFrame(gameLoopId);
-    document.getElementById("gameOverScreen").classList.remove("hidden-layer");
+/* --- CONFIGURACIÓN BASE --- */
+html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background-color: #222; overflow: hidden; 
+    font-family: 'Fredoka', sans-serif; touch-action: none;
 }
 
-function triggerFinalHug() {
-    gameState = 'END'; cancelAnimationFrame(gameLoopId);
-    
-    // --- SINCRONIZACIÓN EXACTA ---
-    document.getElementById("finalScreen").classList.remove("hidden-layer");
-    document.getElementById("achievement-layer").classList.remove("hidden-layer");
-    
-    // Animación Sticker
-    const sticker = document.getElementById("stickerAbacho");
-    sticker.classList.remove("animate-pop"); // Reset por si acaso
-    void sticker.offsetWidth; // Forzar reflow
-    sticker.classList.add("animate-pop");
-
-    // Audio y Confeti
-    document.getElementById("winSound").play().catch(()=>{});
-    confetti({ spread: 360, ticks: 150, particleCount: 150, shapes: ['heart'] });
-    
-    // Reset GIF
-    let gif = document.getElementById("achievement-gif");
-    let src = gif.src; gif.src = ''; gif.src = src;
-
-    setTimeout(() => { document.getElementById("achievement-layer").classList.add("hidden-layer"); }, 9950);
+canvas {
+    display: block; width: 100%; height: 100%;
+    background-image: url('fotos/fondo.gif');
+    background-size: cover; background-position: center;
 }
 
-function loop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (gameState === 'PLAYING') {
-        monky.draw(); monky.update(); pipes.draw(); pipes.update();
-        ctx.fillStyle = "#FFF"; ctx.font = "bold 45px Fredoka";
-        ctx.fillText(score, canvas.width/2 - 15, 80);
-        frames++; gameLoopId = requestAnimationFrame(loop);
-    }
+/* --- CAPAS Y CENTRADO --- */
+.overlay-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(252, 228, 236, 0.98); 
+    z-index: 100; /* Asegura que esté sobre el canvas */
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
 }
 
-// --- EVENTOS CORREGIDOS (AQUÍ ESTABA EL ERROR DEL BOTÓN) ---
-document.addEventListener('DOMContentLoaded', () => {
-    canvas = document.getElementById("gameCanvas"); ctx = canvas.getContext("2d");
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
+.content-box { 
+    text-align: center; 
+    display: flex; flex-direction: column; align-items: center; 
+    z-index: 101; /* Contenido sobre el fondo */
+}
 
-    // SOLO prevenimos el comportamiento por defecto si estamos JUGANDO.
-    // Si estamos en el menú (START), dejamos que el clic del botón pase normal.
-    window.addEventListener("touchstart", (e) => { 
-        if (gameState === 'PLAYING') {
-            e.preventDefault(); 
-            monky.flap();
-        }
-    }, {passive: false});
+/* Clases de utilidad */
+.hidden-layer { display: none !important; }
+.final-overlay { background: transparent !important; pointer-events: none; }
 
-    window.addEventListener("mousedown", (e) => { 
-        if (gameState === 'PLAYING') monky.flap();
-    });
-});
+/* 🟢 ANIMACIÓN POP-IN (Inflado) */
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pop {
+    animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+/* --- ESTILOS VISUALES --- */
+h1 { color: #880e4f; font-size: 2.2rem; margin-bottom: 10px; }
+p { color: #d81b60; font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; }
+
+button {
+    background: #d81b60; color: white; border: none;
+    padding: 18px 60px; font-size: 1.5rem; border-radius: 50px;
+    cursor: pointer; box-shadow: 0 6px 0 #ad1457;
+    font-weight: bold; font-family: 'Fredoka';
+    touch-action: manipulation; /* Mejora respuesta táctil */
+    position: relative; z-index: 102; /* Botón clickable siempre */
+}
+button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
+
+.hug-img { width: 280px; height: auto; margin-bottom: 15px; }
+
+.letter-box {
+    background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
+    width: 85%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+#achievement-layer {
+    position: fixed; top: 20px; width: 100%;
+    display: flex; justify-content: center; z-index: 1000;
+}
+#achievement-gif { width: 400px; max-width: 90%; }
