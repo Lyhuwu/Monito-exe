@@ -3,28 +3,34 @@ const WIN_SCORE = 7;
 
 const monky = {
     x: 50, y: 0, width: 60, height: 60, speed: 0, gravity: 0.18, jump: 4.0,
-    draw: function() { if(imgPlayer.complete) ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height); },
+    
+    draw: function() { 
+        if(imgPlayer.complete) ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height); 
+    },
+    
     update: function() {
         if (gameState === 'PLAYING') {
-            this.speed += this.gravity; this.y += this.speed;
+            this.speed += this.gravity; 
+            this.y += this.speed;
+            
+            // Si toca suelo o techo -> Game Over
             if(this.y + this.height >= canvas.height || this.y <= 0) gameOverGlobal();
         }
     },
+    
     flap: function() {
         if (gameState === 'PLAYING') {
             this.speed = -this.jump;
             
-            // 👇 CÓDIGO MEJORADO PARA EL SONIDO 👇
+            // 👇 CÓDIGO DE SONIDO DE SALTO (CORREGIDO) 👇
             let jS = document.getElementById("jumpSound");
             if (jS) {
-                jS.currentTime = 0; // Rebobinar al inicio
-                jS.volume = 0.4;    // Volumen al 40% (para que no aturda)
-                
-                // Truco: clonar el audio si quieres que se superpongan los saltos
-                // O dejarlo así para que se reinicie.
+                jS.currentTime = 0; // Rebobina para que suene aunque le des rápido
+                jS.volume = 0.4;    // Volumen suave
                 jS.play().catch((e) => console.log("Error audio salto:", e));
             }
         }
+    }
 };
 
 const pipes = {
