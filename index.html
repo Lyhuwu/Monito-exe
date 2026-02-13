@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monky Fly: El Encuentro 🐒❤️</title>
+    <title>Monky Fly 🐒❤️</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -21,18 +21,20 @@
     <canvas id="gameCanvas"></canvas>
 
     <div id="startScreen" class="overlay">
-        <div class="center-content">
+        <div class="center-box">
             <h1>MONKY FLY 🐒✈️</h1>
             <img src="fotos/inicio.gif" alt="Intro" class="start-img" onerror="this.style.display='none'">
             <p>Esquiva y llega a mis brazos.<br>Meta: <b>7 Puntos</b></p>
-            <button id="btnStart">¡JUGAR!</button>
+            <button onclick="iniciarJuego()" id="btnStart">¡JUGAR!</button>
         </div>
     </div>
 
     <div id="gameOverScreen" class="overlay invisible">
-        <h1>¡CHOCASTE! 💥</h1>
-        <p>No te rindas, mi amor.<br>¡Inténtalo de nuevo!</p>
-        <button id="btnRetry">REINTENTAR ↺</button>
+        <div class="center-box">
+            <h1>¡CHOCASTE! 💥</h1>
+            <p>No te rindas, mi amor.<br>¡Inténtalo de nuevo!</p>
+            <button onclick="reiniciarJuego()" id="btnRetry">REINTENTAR ↺</button>
+        </div>
     </div>
 
     <div id="finalScreen" class="overlay final-overlay invisible">
