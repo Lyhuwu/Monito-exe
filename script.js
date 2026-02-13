@@ -1,13 +1,10 @@
-// --- VARIABLES DE ESTADO ---
 let canvas, ctx, frames = 0, score = 0, gameLoopId, gameState = 'START';
 const WIN_SCORE = 7;
 
 // --- OBJETOS ---
 const monky = {
     x: 50, y: 0, width: 60, height: 60, speed: 0, gravity: 0.18, jump: 4.0,
-    draw: function() {
-        if(imgPlayer.complete) ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height);
-    },
+    draw: function() { if(imgPlayer.complete) ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height); },
     update: function() {
         if (gameState === 'PLAYING') {
             this.speed += this.gravity; this.y += this.speed;
@@ -17,7 +14,8 @@ const monky = {
     flap: function() {
         if (gameState === 'PLAYING') {
             this.speed = -this.jump;
-            let snd = document.getElementById("jumpSound"); snd.currentTime = 0; snd.play().catch(()=>{});
+            document.getElementById("jumpSound").currentTime = 0;
+            document.getElementById("jumpSound").play().catch(()=>{});
         }
     }
 };
@@ -55,7 +53,7 @@ const pipes = {
 const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
 const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png";
 
-// --- CONTROL DE FLUJO ---
+// --- CONTROL ---
 window.iniciarJuegoGlobal = function() {
     document.getElementById("startScreen").classList.add("hidden-layer");
     gameState = 'PLAYING'; score = 0; frames = 0; monky.y = canvas.height / 2;
@@ -89,25 +87,25 @@ function animateEnding() {
 function triggerFinalHug() {
     gameState = 'END'; cancelAnimationFrame(gameLoopId);
     
-    // 🟢 ACCIÓN SINCRONIZADA 🟢
+    // 🟢 ACCIÓN SIMULTÁNEA 🟢
     
-    // 1. Mostrar capas inmediatamente (Cero Display delay)
+    // 1. Mostrar capas inmediatamente
     document.getElementById("finalScreen").classList.remove("hidden-layer");
     document.getElementById("achievement-layer").classList.remove("hidden-layer");
     
-    // 2. Disparar animación de inflado al sticker de abacho
-    const sticker = document.getElementById("stickerAbacho");
-    sticker.classList.add("animate-pop");
+    // 2. Disparar animación de inflado
+    document.getElementById("stickerAbacho").classList.add("animate-pop");
 
-    // 3. Iniciar Audio y Confeti
+    // 3. Audio y Confeti
     document.getElementById("winSound").play().catch(()=>{});
     confetti({ spread: 360, ticks: 150, particleCount: 150, shapes: ['heart'] });
     
-    // 4. Reiniciar GIF del logro
+    // 4. Reiniciar GIF
     let gif = document.getElementById("achievement-gif");
     let src = gif.src; gif.src = ''; gif.src = src;
 
-    setTimeout(() => { document.getElementById("achievement-layer").classList.add("hidden-layer"); }, 8000);
+    // 🟢 TIEMPO DE LOGRO: 9.95 SEGUNDOS
+    setTimeout(() => { document.getElementById("achievement-layer").classList.add("hidden-layer"); }, 9950);
 }
 
 function loop() {
