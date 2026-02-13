@@ -1,62 +1,103 @@
-/* --- CONFIGURACIÓN BASE --- */
+/* --- RESET Y CONFIGURACIÓN BASE --- */
 html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     background-color: #222; overflow: hidden; 
     font-family: 'Fredoka', sans-serif; touch-action: none; user-select: none;
 }
 
+/* --- CANVAS DEL JUEGO --- */
 canvas {
     display: block; width: 100%; height: 100%;
     background-image: url('fotos/fondo.gif');
     background-size: cover; background-position: center; background-repeat: no-repeat;
-    background-color: #81d4fa; 
+    background-color: #81d4fa; /* Color de respaldo */
 }
 
-.overlay {
+/* --- SISTEMA DE CAPAS (OVERLAYS) --- */
+/* Esta estructura garantiza el centrado perfecto */
+.overlay-container {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(252, 228, 236, 0.98); 
     z-index: 50;
-    display: flex; flex-direction: column; 
-    justify-content: center; align-items: center;
+    display: flex; /* Flexbox activado */
+    justify-content: center; /* Centrado horizontal */
+    align-items: center; /* Centrado vertical */
 }
 
-/* --- TRUCO SIN DELAY --- */
-.invisible { display: none !important; }
+/* Caja de contenido interno */
+.content-box {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    width: 90%; max-width: 400px; /* Límites para que no se desborde */
+}
 
-.final-overlay { background: transparent !important; pointer-events: none; }
+/* --- CLASES DE UTILIDAD DE VISIBILIDAD --- */
+/* Usamos display: none para ocultar completamente del flujo de renderizado */
+.hidden-layer {
+    display: none !important;
+}
 
-/* 🟢 ANIMACIÓN DE INFLADO (POP-IN) */
-@keyframes popIn {
+/* Configuración específica para el final (transparente) */
+.final-overlay {
+    background: transparent !important;
+    pointer-events: none;
+}
+
+/* --- 🟢 DEFINICIÓN DE ANIMACIÓN (POP ELÁSTICO) --- */
+@keyframes popInElastic {
     0% { transform: scale(0); opacity: 0; }
-    70% { transform: scale(1.15); opacity: 1; }
+    60% { transform: scale(1.15); opacity: 1; } /* Rebote */
+    80% { transform: scale(0.95); }
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* Esta clase se añade por JS al ganar */
-.animar-abrazo {
-    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+/* Clase disparadora de la animación */
+.animate-pop {
+    /* Se fuerza la ejecución inmediata */
+    animation: popInElastic 0.7s cubic-bezier(0.215, 0.610, 0.355, 1.000) both !important;
+    /* Fuerza el uso de aceleración por hardware */
+    will-change: transform;
 }
 
-/* Estilos de Elementos */
-.hug-sticker { width: 280px; height: auto; margin-bottom: 15px; opacity: 0; }
-.letter-box {
-    background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
-    width: 85%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    text-align: center;
-}
+/* --- ESTILOS DE ELEMENTOS UI --- */
+h1 { color: #880e4f; font-size: 2.2rem; margin: 0 0 20px 0; }
+p { color: #d81b60; font-size: 1.2rem; font-weight: bold; margin-bottom: 30px; line-height: 1.4; }
 
-#achievement-layer {
-    position: fixed; top: 20px; width: 100%;
-    display: flex; justify-content: center; z-index: 9999;
-}
-#achievement-gif { width: 350px; max-width: 90%; }
-
-/* Botones y Textos */
-h1 { color: #880e4f; font-size: 2.2rem; }
-p { color: #d81b60; font-size: 1.2rem; font-weight: bold; }
 button {
     background: #d81b60; color: white; border: none;
+    /* Márgenes automáticos horizontales para asegurar centrado en flex column */
+    margin: 10px auto;
     padding: 18px 60px; font-size: 1.5rem; border-radius: 50px;
-    box-shadow: 0 6px 0 #ad1457; font-weight: bold;
+    cursor: pointer; box-shadow: 0 6px 0 #ad1457;
+    font-family: 'Fredoka', sans-serif; font-weight: bold;
+    touch-action: manipulation; pointer-events: auto;
 }
+button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
+
+/* Imágenes */
 .start-img { width: 160px; border-radius: 20px; margin-bottom: 25px; }
+
+/* Elementos Finales */
+.hug-wrapper {
+    display: flex; flex-direction: column; align-items: center;
+}
+
+/* El sticker inicia invisible hasta que se le aplique la animación */
+.hug-img { 
+    width: 280px; height: auto; margin-bottom: 20px; 
+    opacity: 0; transform: scale(0); /* Estado inicial pre-animación */
+}
+
+.letter-box {
+    background: white; padding: 25px; border-radius: 20px; border: 3px solid #f8bbd0;
+    width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center;
+    /* La carta aparece instantáneamente sin animación */
+}
+.letter-box h2 { color: #d81b60; margin: 0 0 10px 0; font-size: 1.6rem; }
+.letter-box p { font-size: 1.1rem; color: #555; margin: 0; }
+
+/* Capa de Logro */
+#achievement-layer {
+    position: fixed; top: 20px; width: 100%;
+    display: flex; justify-content: center; z-index: 9999; pointer-events: none;
+}
+#achievement-gif { width: 350px; max-width: 90%; }
