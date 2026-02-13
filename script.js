@@ -93,7 +93,7 @@ function triggerFinalHug() {
     document.getElementById("finalScreen").classList.remove("hidden-layer");
     document.getElementById("achievement-layer").classList.remove("hidden-layer");
     
-    // 2. Disparar animación de inflado
+    // 2. Disparar animación de rebote
     document.getElementById("stickerAbacho").classList.add("animate-pop");
 
     // 3. Audio y Confeti
