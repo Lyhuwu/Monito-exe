@@ -34,33 +34,34 @@ body {
 @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 .hidden { opacity: 0; pointer-events: none; }
 
-/* --- GIF DEL LOGRO (AJUSTADO MÁS ARRIBA) --- */
+/* --- GIF DEL LOGRO (MÁS GRANDE Y ARRIBA) --- */
 #achievement-gif {
     position: fixed;
-    /* AJUSTE: Ahora está a solo 5px del borde superior */
-    top: 5px; 
-    left: 50%; transform: translateX(-50%); z-index: 9999;
-    width: 320px; height: auto;
+    /* AJUSTE: top negativo o 0 para pegarlo arriba */
+    top: -10px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    z-index: 9999;
+    
+    /* AJUSTE: Más grande (antes era 320px) */
+    width: 380px; 
+    max-width: 95%; /* Para que no se salga en cels pequeños */
+    height: auto;
+    
     display: none; pointer-events: none;
 }
 
 /* --- JUEGO --- */
 .game-container { width: 90%; max-width: 450px; padding: 20px 0; transition: transform 0.1s; }
 
-/* Animación de temblor para la turbulencia */
-.shake { animation: shake 0.5s infinite; }
+/* Animación de EXPLOSIÓN (Temblor más fuerte) */
+.shake { animation: shake 0.3s infinite; }
 @keyframes shake {
-  0% { transform: translate(1px, 1px) rotate(0deg); }
-  10% { transform: translate(-1px, -2px) rotate(-1deg); }
-  20% { transform: translate(-3px, 0px) rotate(1deg); }
-  30% { transform: translate(3px, 2px) rotate(0deg); }
-  40% { transform: translate(1px, -1px) rotate(1deg); }
-  50% { transform: translate(-1px, 2px) rotate(-1deg); }
-  60% { transform: translate(-3px, 1px) rotate(0deg); }
-  70% { transform: translate(3px, 1px) rotate(-1deg); }
-  80% { transform: translate(-1px, -1px) rotate(1deg); }
-  90% { transform: translate(1px, 2px) rotate(0deg); }
-  100% { transform: translate(1px, -2px) rotate(-1deg); }
+  0% { transform: translate(2px, 2px) rotate(0deg); }
+  25% { transform: translate(-2px, -3px) rotate(-2deg); }
+  50% { transform: translate(3px, 1px) rotate(2deg); }
+  75% { transform: translate(-3px, 2px) rotate(-1deg); }
+  100% { transform: translate(1px, -2px) rotate(1deg); }
 }
 
 h1 { color: #880e4f; margin-bottom: 5px; font-size: 2rem; }
@@ -72,13 +73,17 @@ h1 { color: #880e4f; margin-bottom: 5px; font-size: 2rem; }
     display: flex; align-items: center; justify-content: center;
 }
 
-/* --- OBSTÁCULOS --- */
+/* --- OBSTÁCULOS (BOMBAS) --- */
 .obstacle {
-    position: absolute; top: 10px; font-size: 2rem; z-index: 5; opacity: 0.8;
+    position: absolute; top: 15px; font-size: 1.8rem; z-index: 5; 
+    animation: pulseBomb 1s infinite;
 }
-/* Posiciones de las tormentas */
-.storm-1 { left: 30%; } 
-.storm-2 { left: 70%; }
+@keyframes pulseBomb { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+/* Posiciones de las bombas */
+.bomb-1 { left: 20%; } 
+.bomb-2 { left: 50%; }
+.bomb-3 { left: 80%; }
 
 .goal { position: absolute; right: -10px; top: 0px; z-index: 10; transition: opacity 0.3s; }
 .goal-img { width: 80px; height: auto; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1)); }
