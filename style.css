@@ -1,4 +1,4 @@
-/* --- CONFIGURACIÓN BASE --- */
+/* --- BASE --- */
 html, body {
     margin: 0; padding: 0;
     width: 100%; height: 100%;
@@ -8,38 +8,39 @@ html, body {
     touch-action: none; user-select: none;
 }
 
-/* --- LIENZO --- */
+/* --- CANVAS --- */
 canvas {
     display: block; width: 100%; height: 100%;
+    /* Fondo del juego */
     background: linear-gradient(to bottom, #81d4fa, #e1f5fe);
-    background-image: url('fotos/fondo.gif');
+    background-image: url('fotos/fondo.gif'); /* Asegúrate de que existe */
     background-size: cover; background-position: center; background-repeat: no-repeat;
     border: none;
 }
 
-/* --- CAPAS DE PANTALLA COMPLETA (Overlays) --- */
+/* --- CAPAS (Overlays) CENTRADAS --- */
 .overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(252, 228, 236, 0.98); 
     z-index: 50;
     
-    /* 🛠️ ESTO ES LO QUE CENTRA TODO 🛠️ */
+    /* FLEXBOX PARA CENTRADO PERFECTO */
     display: flex; 
     flex-direction: column; 
-    justify-content: center; /* Centrado Vertical */
-    align-items: center;     /* Centrado Horizontal */
-    text-align: center;
+    justify-content: center; 
+    align-items: center;
     
     transition: opacity 0.3s;
 }
 
-/* Caja interna para asegurar márgenes */
-.center-box {
-    max-width: 90%;
+/* Contenedor interno */
+.center-content {
+    text-align: center;
     display: flex; flex-direction: column; align-items: center;
+    width: 100%;
 }
 
-/* Clases de Visibilidad */
+/* --- VISIBILIDAD INSTANTÁNEA (Cero Delay) --- */
 .invisible {
     visibility: hidden; opacity: 0;
     transition: visibility 0s linear 0s, opacity 0.3s;
@@ -48,35 +49,22 @@ canvas {
     visibility: visible !important; opacity: 1 !important;
     transition: none !important;
 }
-
-/* Estilos Específicos */
 .final-overlay { background: transparent !important; pointer-events: none; }
-.hug-container { 
-    position: relative; animation: none; 
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1.0)); 
-}
-#achievement-layer {
-    position: fixed; top: 20px; width: 100%;
-    display: flex; justify-content: center; z-index: 9999;
-    pointer-events: none;
-}
-#achievement-gif { width: 350px; max-width: 90%; }
 
-/* Textos y Botones */
+/* --- ESTILOS DE ELEMENTOS --- */
 h1 { color: #880e4f; font-size: 2.2rem; margin: 0 0 15px 0; }
-p { color: #d81b60; font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; line-height: 1.4; }
+p { color: #d81b60; font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; }
 
 button {
     background: #d81b60; color: white; border: none;
-    padding: 18px 50px; font-size: 1.5rem; border-radius: 50px;
+    padding: 18px 60px; font-size: 1.5rem; border-radius: 50px;
     cursor: pointer; box-shadow: 0 6px 0 #ad1457;
     font-family: 'Fredoka', sans-serif; font-weight: bold;
-    touch-action: manipulation;
+    touch-action: manipulation; pointer-events: auto; /* Asegura click */
 }
 button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
 
-/* Imágenes */
-.start-img { width: 160px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.start-img { width: 160px; border-radius: 20px; margin-bottom: 25px; }
 .hug-sticker { width: 280px; height: auto; margin-bottom: 15px; }
 .letter-box {
     background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
@@ -84,3 +72,11 @@ button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
 }
 .letter-box h2 { color: #d81b60; margin: 0 0 10px 0; font-size: 1.5rem; }
 .letter-box p { font-size: 1.1rem; color: #555; margin: 0; }
+
+/* Logro */
+#achievement-layer {
+    position: fixed; top: 20px; width: 100%;
+    display: flex; justify-content: center; z-index: 9999;
+    pointer-events: none;
+}
+#achievement-gif { width: 350px; max-width: 90%; }
