@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monky aventura 🐒❤️</title>
+    <title>Monky Fly 🐒❤️</title>
+    
     <link rel="preload" as="image" href="fotos/monkys-abrazados.png">
     <link rel="preload" as="image" href="fotos/xvox.gif">
+    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -14,6 +16,8 @@
     <audio id="jumpSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
     <audio id="scoreSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
     <audio id="winSound" src="https://lyhuwu.github.io/Monito-exe/xbox.mp3" preload="auto"></audio>
+    
+    <audio id="crashSound" src="https://assets.mixkit.co/active_storage/sfx/2864/2864-preview.mp3" preload="auto"></audio>
 
     <div id="achievement-layer" class="hidden-layer">
         <img id="achievement-gif" src="fotos/xvox.gif" alt="Logro Xbox">
@@ -23,9 +27,9 @@
 
     <div id="startScreen" class="overlay-container">
         <div class="content-box">
-            <h1>Monkey aventura 🐒</h1>
+            <h1>MONKY FLY 🐒✈️</h1>
             <img src="fotos/inicio.gif" alt="Intro" class="start-img" onerror="this.style.display='none'">
-            <p>El monkey desea ver su amada, esquiva los obstáculos para ayudar.<br>Meta: <b>7 Puntos</b></p>
+            <p>Esquiva y llega a mis brazos.<br>Meta: <b>7 Puntos</b></p>
             <button id="btnStart" onclick="iniciarJuegoGlobal()" ontouchstart="iniciarJuegoGlobal()">¡JUGAR!</button>
         </div>
     </div>
@@ -33,7 +37,6 @@
     <div id="gameOverScreen" class="overlay-container hidden-layer">
         <div class="content-box">
             <h1>¡CHOCASTE! 💥</h1>
-            <h1>Intenta de nuevo</h1>
             <button onclick="reiniciarJuegoGlobal()" ontouchstart="reiniciarJuegoGlobal()">REINTENTAR ↺</button>
         </div>
     </div>
@@ -42,8 +45,8 @@
         <div class="hug-wrapper">
             <img id="stickerAbacho" src="fotos/monkys-abrazados.png" class="hug-img" alt="Abrazo Final">
             <div class="letter-box">
-                <h2>¡Juntitas! 🏡</h2>
-                <p>Al igual que el monkey yo superaria cualquier obstáculo para estr contigo<3.<br><b>Te amo mi monkeyspaidi.</b></p>
+                <h2>¡Juntas! 🏡</h2>
+                <p>Cruzaría el cielo mil veces por ti.<br><b>Te amo, Monky.</b></p>
             </div>
         </div>
     </div>
