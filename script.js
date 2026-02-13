@@ -3,31 +3,27 @@ const slider = document.getElementById('loveSlider');
 const sound = document.getElementById('achievementSound');
 const startScreen = document.getElementById('start-screen');
 const startBtn = document.getElementById('start-btn');
+const gif = document.getElementById('achievement-gif'); 
 
-// --- 1. LÓGICA DE INICIO (CLICK MÁGICO) ---
+// --- 1. INICIO (Activar audio y quitar pantalla) ---
 startBtn.addEventListener('click', () => {
-    // Al hacer clic, reproducimos silencio para desbloquear el audio
     sound.volume = 0; 
     sound.play().then(() => {
         sound.pause();
         sound.currentTime = 0;
-        console.log("Audio desbloqueado y listo 🔊");
-    }).catch(error => {
-        console.log("Error al intentar desbloquear:", error);
-    });
-
-    // Ocultamos la pantalla de inicio
+    }).catch(e => console.log("Error unlock:", e));
+    
+    // Ocultar pantalla
     startScreen.classList.add('hidden');
 });
 
-// --- 2. DIFICULTAD (El slider regresa) ---
+// --- 2. DIFICULTAD ---
 slider.addEventListener('touchend', slideBack);
 slider.addEventListener('mouseup', slideBack);
 
 function slideBack() {
     if (hasWon) return;
     let currentValue = parseInt(slider.value);
-    
     if (currentValue < 99) {
         let interval = setInterval(() => {
             if (hasWon) { clearInterval(interval); return; }
@@ -45,7 +41,7 @@ function updateKmText(val) {
     if (!hasWon) { kmText.innerText = currentKm + " km restantes"; }
 }
 
-// --- 3. LÓGICA PRINCIPAL (GANAR) ---
+// --- 3. LÓGICA PRINCIPAL ---
 function checkHug() {
     if (hasWon) { slider.value = 100; return; }
 
@@ -55,7 +51,6 @@ function checkHug() {
     const hugSticker = document.getElementById('hugSticker');
     const kmText = document.getElementById('kmText');
     const body = document.querySelector('body');
-    const achievement = document.getElementById('achievement');
 
     updateKmText(value);
 
@@ -63,14 +58,20 @@ function checkHug() {
     if (value >= 99) {
         hasWon = true; 
 
-        // A. SONIDO (¡Ahora sí!) 🔊
+        // A. SONIDO
         sound.volume = 1.0; 
         sound.currentTime = 0;
         sound.play().catch(e => console.log("Error final:", e));
 
-        // B. VISUALES 🏆
-        achievement.classList.add('show');
+        // B. EL GIF (xvox.gif)
+        gif.style.display = 'block';
         
+        // Reiniciar animación del GIF
+        const currentSrc = gif.src;
+        gif.src = ''; 
+        gif.src = currentSrc;
+
+        // C. RESTO DE EFECTOS
         kmText.innerText = "¡Juntas! ❤️";
         body.style.backgroundColor = "#ffcdd2"; 
         
@@ -85,6 +86,9 @@ function checkHug() {
             slider.disabled = true;
         }
 
-        setTimeout(() => { achievement.classList.remove('show'); }, 5000);
+        // D. OCULTAR GIF A LOS 9.95 SEGUNDOS
+        setTimeout(() => { 
+            gif.style.display = 'none'; 
+        }, 9950);
     }
 }
