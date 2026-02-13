@@ -1,4 +1,4 @@
-/* --- CONFIGURACIÓN BASE --- */
+/* --- BASE --- */
 html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     background-color: #222; overflow: hidden; 
@@ -11,7 +11,7 @@ canvas {
     background-size: cover; background-position: center;
 }
 
-/* --- CENTRADO TOTAL --- */
+/* --- CENTRADO PROFESIONAL --- */
 .overlay-container {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(252, 228, 236, 0.98); 
@@ -22,25 +22,19 @@ canvas {
 }
 
 .content-box { text-align: center; display: flex; flex-direction: column; align-items: center; }
-
-/* Capas ocultas */
 .hidden-layer { display: none !important; }
+.final-overlay { background: transparent !important; pointer-events: none; }
 
-/* Pantalla final transparente */
-.final-overlay { 
-    background: transparent !important; 
-    pointer-events: none;
-}
-
-/* 🟢 ANIMACIÓN DE INFLADO (POP-IN) */
-@keyframes inflarSticker {
-    0% { transform: scale(0); opacity: 0; }
-    60% { transform: scale(1.2); opacity: 1; } /* Se infla un poco más */
-    100% { transform: scale(1); opacity: 1; }  /* Se asienta en su tamaño */
+/* 🟢 ANIMACIÓN DE INFLADO (BOUNCE-IN) */
+@keyframes bounceIn {
+    0% { opacity: 0; transform: scale(.3); }
+    50% { opacity: 1; transform: scale(1.05); }
+    70% { transform: scale(.9); }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 .animate-pop {
-    animation: inflarSticker 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+    animation: bounceIn 0.8s cubic-bezier(0.215, 0.610, 0.355, 1.000) both !important;
 }
 
 /* --- ELEMENTOS UI --- */
@@ -54,14 +48,11 @@ button {
     font-weight: bold; font-family: 'Fredoka';
 }
 
-.hug-wrapper {
-    display: flex; flex-direction: column; align-items: center;
-    width: 100%;
-}
+.hug-wrapper { display: flex; flex-direction: column; align-items: center; }
 
 .hug-img { 
     width: 280px; height: auto; margin-bottom: 15px; 
-    opacity: 0; transform: scale(0); /* Invisible hasta ganar */
+    opacity: 0; transform: scale(0);
 }
 
 .letter-box {
@@ -76,6 +67,6 @@ button {
 }
 
 #achievement-gif { 
-    width: 400px; /* Aumentado 15% (era ~350px) */
+    width: 403px; /* Aumento del 15% */
     max-width: 90%; 
 }
