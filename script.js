@@ -1,7 +1,6 @@
 let canvas, ctx, frames = 0, score = 0, gameLoopId, gameState = 'START';
 const WIN_SCORE = 7;
 
-// --- OBJETOS ---
 const monky = {
     x: 50, y: 0, width: 60, height: 60, speed: 0, gravity: 0.18, jump: 4.0,
     draw: function() { if(imgPlayer.complete) ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height); },
@@ -36,7 +35,6 @@ const pipes = {
             if(p.x + 65 <= 0) {
                 this.items.shift(); score++;
                 document.getElementById("scoreSound").play().catch(()=>{});
-                // Al llegar a 7, iniciamos la cinemática
                 if(score >= WIN_SCORE) startCinematicEnding();
             }
         }
@@ -54,7 +52,6 @@ const pipes = {
 const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
 const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png";
 
-// --- FUNCIONES GLOBALES ---
 window.iniciarJuegoGlobal = function() {
     document.getElementById("startScreen").classList.add("hidden-layer");
     gameState = 'PLAYING'; score = 0; frames = 0; monky.y = canvas.height / 2;
@@ -69,10 +66,15 @@ window.reiniciarJuegoGlobal = function() {
 
 function gameOverGlobal() {
     gameState = 'END'; cancelAnimationFrame(gameLoopId);
+    
+    // 🔊 SONIDO DE CHOQUE
+    let crash = document.getElementById("crashSound");
+    crash.currentTime = 0; // Reiniciar por si choca muy seguido
+    crash.play().catch(()=>{});
+
     document.getElementById("gameOverScreen").classList.remove("hidden-layer");
 }
 
-// --- CINEMÁTICA LENTA (ROMÁNTICA) ---
 let goalX = 0, goalY = 0;
 
 function startCinematicEnding() {
@@ -88,46 +90,34 @@ function animateEnding() {
     let dx = goalX - monky.x;
     let dy = goalY - monky.y;
     
-    // 🟢 CAMBIO DE VELOCIDAD: 
-    // Antes era 0.04 (rápido). Ahora es 0.02 (lento y suave).
     monky.x += dx * 0.02;
     monky.y += dy * 0.02;
     
     monky.draw();
 
-    // Cuando están muy cerca (menos de 5px), se abrazan
     if (Math.abs(dx) < 5 && Math.abs(dy) < 5) triggerFinalHug();
 }
 
-// --- FINAL OPTIMIZADO (GHOST RENDERING) ---
 function triggerFinalHug() {
     gameState = 'END'; cancelAnimationFrame(gameLoopId);
     
-    // Referencias
     const finalScreen = document.getElementById("finalScreen");
     const achievementLayer = document.getElementById("achievement-layer");
     const sticker = document.getElementById("stickerAbacho");
     const achievementGif = document.getElementById("achievement-gif");
 
-    // 1. Mostrar Logro
     achievementLayer.classList.remove("hidden-layer");
-
-    // 2. Mostrar Pantalla Final (Ghost Rendering)
     finalScreen.classList.add("visible");
 
-    // 3. Sticker con animación "Inflado Suave"
     sticker.classList.remove("sticker-inflate");
     void sticker.offsetWidth; 
     sticker.classList.add("sticker-inflate");
 
-    // 4. Multimedia
     document.getElementById("winSound").play().catch(()=>{});
     confetti({ spread: 360, ticks: 150, particleCount: 150, shapes: ['heart'] });
     
-    // Reset GIF
     const src = achievementGif.src; achievementGif.src = ''; achievementGif.src = src;
 
-    // Timer Logro
     setTimeout(() => { document.getElementById("achievement-layer").classList.add("hidden-layer"); }, 9950);
 }
 
@@ -146,7 +136,6 @@ function loop() {
     }
 }
 
-// --- EVENTOS ---
 document.addEventListener('DOMContentLoaded', () => {
     canvas = document.getElementById("gameCanvas"); ctx = canvas.getContext("2d");
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
