@@ -117,11 +117,42 @@ function gameOverGlobal() {
 
 let goalX = 0, goalY = 0;
 
+// --- CINEMÁTICA LENTA (ROMÁNTICA) ---
+
+let goalX = 0, goalY = 0;
+
+
+
 function startCinematicEnding() {
+
     gameState = 'MOVING_TO_HUG'; 
-    pipes.items = []; 
+
+    pipes.items = []; // Quitamos tubos
+
+    
+
+    // 👇 AQUÍ ENCIENDES LA MÚSICA 👇
+
+    const finalMusic = document.getElementById("finalMusic");
+
+    if (finalMusic) {
+
+        finalMusic.volume = 0.2; // 🔈 Volumen bajito (20%) para que sea fondo suave
+
+        finalMusic.play().catch((e) => console.log("Error música final:", e));
+
+    }
+
+    // 👆 ----------------------- 👆
+
+
+
+    // Definimos meta
+
     goalX = canvas.width * 0.8; 
+
     goalY = canvas.height / 2 - 35;
+
 }
 
 function animateEnding() {
