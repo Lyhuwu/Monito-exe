@@ -17,21 +17,23 @@ startBtn.addEventListener('click', () => {
     startScreen.classList.add('hidden');
 });
 
-// --- 2. DIFICULTAD Y OBSTÁCULOS ---
+// --- 2. DIFICULTAD (CAMPO MINADO) ---
 slider.addEventListener('touchend', slideBack);
 slider.addEventListener('mouseup', slideBack);
 
-// Esta función ahora corre TODO el tiempo mientras deslizas para detectar turbulencia
-slider.addEventListener('input', checkTurbulence);
+// Revisar bombas constantemente
+slider.addEventListener('input', checkObstacles);
 
-function checkTurbulence() {
+function checkObstacles() {
     if (hasWon) return;
     let val = parseInt(slider.value);
 
-    // ZONAS DE TURBULENCIA (Entre 25-35 y entre 65-75)
-    if ((val > 25 && val < 35) || (val > 65 && val < 75)) {
-        gameBox.classList.add('shake'); // Efecto temblor
-        statusText.innerText = "¡TURBULENCIA! 🌬️ Agárrate fuerte";
+    // ZONAS DE BOMBAS (15-25, 45-55, 75-85)
+    let hitBomb = (val > 15 && val < 25) || (val > 45 && val < 55) || (val > 75 && val < 85);
+
+    if (hitBomb) {
+        gameBox.classList.add('shake'); 
+        statusText.innerText = "¡BOMBA! 💥 Corre!!";
         statusText.style.color = "red";
     } else {
         gameBox.classList.remove('shake');
@@ -44,29 +46,29 @@ function slideBack() {
     if (hasWon) return;
     let currentValue = parseInt(slider.value);
     
-    // Si suelta el dedo antes de ganar...
     if (currentValue < 99) {
         
-        // Verificamos si soltó el dedo JUSTO en la turbulencia
-        let isStorm = (currentValue > 25 && currentValue < 35) || (currentValue > 65 && currentValue < 75);
+        // Verificamos si soltó el dedo en zona de bomba
+        let hitBomb = (currentValue > 15 && currentValue < 25) || 
+                      (currentValue > 45 && currentValue < 55) || 
+                      (currentValue > 75 && currentValue < 85);
         
-        // Si es tormenta, retrocede MUCHO más rápido (DIFICULTAD)
-        let speed = isStorm ? 30 : 15; // Velocidad del retroceso
-        let pushBack = isStorm ? 5 : 2; // Cantidad de retroceso
+        // Si toca bomba, regresa MUY rápido (Velocidad 5ms, Retroceso 8px)
+        let speed = hitBomb ? 5 : 15; 
+        let pushBack = hitBomb ? 8 : 2; 
 
         let interval = setInterval(() => {
             if (hasWon) { clearInterval(interval); return; }
             
-            // Retrocede
             slider.value = parseInt(slider.value) - pushBack; 
             updateKmText(slider.value);
             
-            // Actualizar visuales de turbulencia mientras retrocede
-            checkTurbulence(); 
+            // Checar visuales mientras retrocede
+            checkObstacles(); 
 
             if (slider.value <= 0) { 
                 clearInterval(interval); 
-                gameBox.classList.remove('shake'); // Quitar temblor al llegar a 0
+                gameBox.classList.remove('shake'); 
             }
         }, speed);
     }
@@ -81,8 +83,7 @@ function updateKmText(val) {
 
 // --- 3. LÓGICA PRINCIPAL ---
 function checkHug() {
-    // También revisamos turbulencia aquí
-    checkTurbulence();
+    checkObstacles(); // Revisión continua
 
     if (hasWon) { slider.value = 100; return; }
 
@@ -99,7 +100,7 @@ function checkHug() {
     if (value >= 99) {
         hasWon = true; 
         
-        // Quitar efectos de tormenta
+        // Limpiar efectos
         gameBox.classList.remove('shake');
         statusText.innerText = "¡Llegaste! 🎉";
 
@@ -108,13 +109,13 @@ function checkHug() {
         sound.currentTime = 0;
         sound.play().catch(e => console.log("Error final:", e));
 
-        // B. EL GIF (xvox.gif)
+        // B. EL GIF GIGANTE
         gif.style.display = 'block';
         const currentSrc = gif.src;
         gif.src = ''; 
         gif.src = currentSrc;
 
-        // C. RESTO DE EFECTOS
+        // C. EFECTOS
         kmText.innerText = "¡Juntas! ❤️";
         body.style.backgroundColor = "#ffcdd2"; 
         
@@ -129,7 +130,7 @@ function checkHug() {
             slider.disabled = true;
         }
 
-        // D. OCULTAR GIF A LOS 9.95 SEGUNDOS
+        // OCULTAR GIF A LOS 9.95 SEGUNDOS
         setTimeout(() => { 
             gif.style.display = 'none'; 
         }, 9950);
