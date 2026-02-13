@@ -53,6 +53,16 @@ const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
 const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png";
 
 window.iniciarJuegoGlobal = function() {
+    // 1. Detener música de fondo
+    const music = document.getElementById("startMusic");
+    music.pause();
+    music.currentTime = 0; // Reiniciar
+
+    // 2. Reproducir sonido de click
+    const clickS = document.getElementById("clickSound");
+    clickS.play().catch(()=>{});
+
+    // 3. Ocultar pantalla e iniciar
     document.getElementById("startScreen").classList.add("hidden-layer");
     gameState = 'PLAYING'; score = 0; frames = 0; monky.y = canvas.height / 2;
     pipes.reset(); loop();
@@ -148,4 +158,20 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener("mousedown", (e) => { 
         if (gameState === 'PLAYING') monky.flap();
     });
+});
+// --- EVENTOS ---
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (tu código existente de canvas) ...
+    
+    // 👇 AÑADE ESTO PARA INTENTAR REPRODUCIR LA MÚSICA 👇
+    const music = document.getElementById("startMusic");
+    music.volume = 0.5; // Volumen al 50% para que no aturda
+    
+    // Los navegadores a veces bloquean el audio automático. 
+    // Esto intenta reproducirlo al primer toque en la pantalla.
+    document.body.addEventListener('click', function() {
+        if (music.paused && gameState === 'START') {
+            music.play().catch(()=>{});
+        }
+    }, { once: true }); // Solo se ejecuta una vez
 });
