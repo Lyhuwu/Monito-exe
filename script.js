@@ -134,7 +134,7 @@ function startCinematicEnding() {
     // Música Romántica (final.mp3)
     const finalMusic = document.getElementById("finalMusic");
     if (finalMusic) {
-        finalMusic.volume = 0.2; 
+        finalMusic.volume = 0.5; 
         finalMusic.play().catch((e) => console.log("Error música final:", e));
     }
 
