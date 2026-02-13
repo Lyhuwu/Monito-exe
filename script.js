@@ -87,24 +87,25 @@ function animateEnding() {
 function triggerFinalHug() {
     gameState = 'END'; cancelAnimationFrame(gameLoopId);
     
-    // 🟢 ACCIÓN SIMULTÁNEA 🟢
+    // 🟢 SINCRONIZACIÓN TOTAL 🟢
     
-    // 1. Mostrar capas inmediatamente
+    // 1. Mostrar las capas (Logro y Final) al mismo tiempo
     document.getElementById("finalScreen").classList.remove("hidden-layer");
     document.getElementById("achievement-layer").classList.remove("hidden-layer");
     
-    // 2. Disparar animación de rebote
-    document.getElementById("stickerAbacho").classList.add("animate-pop");
+    // 2. Activar animación de inflado al sticker
+    const sticker = document.getElementById("stickerAbacho");
+    sticker.classList.add("animate-pop");
 
     // 3. Audio y Confeti
     document.getElementById("winSound").play().catch(()=>{});
     confetti({ spread: 360, ticks: 150, particleCount: 150, shapes: ['heart'] });
     
-    // 4. Reiniciar GIF
+    // 4. Reiniciar GIF del logro
     let gif = document.getElementById("achievement-gif");
     let src = gif.src; gif.src = ''; gif.src = src;
 
-    // 🟢 TIEMPO DE LOGRO: 9.95 SEGUNDOS
+    // 🟢 DURACIÓN DEL LOGRO: 9.95 SEGUNDOS
     setTimeout(() => { document.getElementById("achievement-layer").classList.add("hidden-layer"); }, 9950);
 }
 
