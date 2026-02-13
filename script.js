@@ -55,7 +55,6 @@ const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png";
 
 // --- FUNCIONES GLOBALES ---
 window.iniciarJuegoGlobal = function() {
-    console.log("Iniciando juego..."); // Debug
     document.getElementById("startScreen").classList.add("hidden-layer");
     gameState = 'PLAYING'; score = 0; frames = 0; monky.y = canvas.height / 2;
     pipes.reset(); loop();
@@ -75,24 +74,32 @@ function gameOverGlobal() {
 function triggerFinalHug() {
     gameState = 'END'; cancelAnimationFrame(gameLoopId);
     
-    // --- SINCRONIZACIÓN EXACTA ---
-    document.getElementById("finalScreen").classList.remove("hidden-layer");
-    document.getElementById("achievement-layer").classList.remove("hidden-layer");
-    
-    // Animación Sticker
+    // --- REFERENCIAS ---
+    const finalScreen = document.getElementById("finalScreen");
+    const achievementLayer = document.getElementById("achievement-layer");
     const sticker = document.getElementById("stickerAbacho");
-    sticker.classList.remove("animate-pop"); // Reset por si acaso
-    void sticker.offsetWidth; // Forzar reflow
+    const achievementGif = document.getElementById("achievement-gif");
+
+    // --- ACTIVACIÓN SIMULTÁNEA (SIN DELAY) ---
+    // 1. Mostrar contenedores
+    finalScreen.classList.remove("hidden-layer");
+    achievementLayer.classList.remove("hidden-layer");
+
+    // 2. Forzar reinicio de animación (Reflow) y activar Pop
+    sticker.classList.remove("animate-pop");
+    void sticker.offsetWidth; // Magia para reiniciar animación
     sticker.classList.add("animate-pop");
 
-    // Audio y Confeti
+    // 3. Audio, Confeti y GIF
     document.getElementById("winSound").play().catch(()=>{});
     confetti({ spread: 360, ticks: 150, particleCount: 150, shapes: ['heart'] });
     
-    // Reset GIF
-    let gif = document.getElementById("achievement-gif");
-    let src = gif.src; gif.src = ''; gif.src = src;
+    // Reiniciar GIF para que empiece desde frame 0
+    const src = achievementGif.src;
+    achievementGif.src = ''; 
+    achievementGif.src = src;
 
+    // 4. Ocultar logro tras 9.95s
     setTimeout(() => { document.getElementById("achievement-layer").classList.add("hidden-layer"); }, 9950);
 }
 
@@ -106,19 +113,15 @@ function loop() {
     }
 }
 
-// --- EVENTOS CORREGIDOS (AQUÍ ESTABA EL ERROR DEL BOTÓN) ---
+// --- EVENTOS ---
 document.addEventListener('DOMContentLoaded', () => {
     canvas = document.getElementById("gameCanvas"); ctx = canvas.getContext("2d");
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // SOLO prevenimos el comportamiento por defecto si estamos JUGANDO.
-    // Si estamos en el menú (START), dejamos que el clic del botón pase normal.
+    // Bloquear touch solo si estamos jugando (para no romper botones)
     window.addEventListener("touchstart", (e) => { 
-        if (gameState === 'PLAYING') {
-            e.preventDefault(); 
-            monky.flap();
-        }
+        if (gameState === 'PLAYING') { e.preventDefault(); monky.flap(); }
     }, {passive: false});
 
     window.addEventListener("mousedown", (e) => { 
