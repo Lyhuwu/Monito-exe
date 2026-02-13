@@ -1,4 +1,4 @@
-/* --- BASE --- */
+/* --- RESET --- */
 html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     background-color: #222; overflow: hidden; 
@@ -11,13 +11,15 @@ canvas {
     background-size: cover; background-position: center;
 }
 
-/* --- CAPAS Y CENTRADO --- */
+/* --- CONTENEDORES (FLEXBOX CENTRADO) --- */
 .overlay-container {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(252, 228, 236, 0.98); 
     z-index: 100;
     display: flex; flex-direction: column;
     justify-content: center; align-items: center;
+    /* ⚠️ IMPORTANTE: Sin transición para evitar delays */
+    transition: none !important;
 }
 
 .content-box { 
@@ -25,27 +27,33 @@ canvas {
     z-index: 101;
 }
 
-/* Clases de utilidad */
+/* Utilidad de Ocultación Absoluta */
 .hidden-layer { display: none !important; }
-.final-overlay { background: transparent !important; pointer-events: none; }
 
-/* 🟢 ANIMACIÓN POP (Visible Inmediatamente) */
+/* Contenedor Final Transparente */
+.final-overlay { 
+    background: transparent !important; 
+    pointer-events: none;
+}
+
+/* 🟢 ANIMACIÓN POP (Inflado Elástico) */
 @keyframes popIn {
-    0% { opacity: 0; transform: scale(0); }
-    60% { opacity: 1; transform: scale(1.15); } /* Rebote */
-    100% { opacity: 1; transform: scale(1); }
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; } /* Rebote hacia afuera */
+    100% { transform: scale(1); opacity: 1; }   /* Tamaño final */
 }
 
 .animate-pop {
-    /* Se asegura que sea visible y ejecute la animación */
     opacity: 1 !important; 
+    /* Duración 0.6s, Curva elástica */
     animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
 }
 
-/* Estado inicial del sticker (Invisible antes de ganar) */
+/* Estado Inicial del Sticker */
 #stickerAbacho {
     opacity: 0;
     transform: scale(0);
+    will-change: transform, opacity; /* Optimización GPU */
 }
 
 /* --- ESTILOS VISUALES --- */
@@ -74,4 +82,7 @@ button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
     position: fixed; top: 20px; width: 100%;
     display: flex; justify-content: center; z-index: 1000;
 }
-#achievement-gif { width: 403px; max-width: 90%; }
+#achievement-gif { 
+    width: 403px; /* Aumentado 15% */
+    max-width: 90%; 
+}
