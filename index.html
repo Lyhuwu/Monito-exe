@@ -3,69 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Monky & Monky 🐒💖🐒</title>
+    <title>Monky Quest: El Encuentro 🐒❤️</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        body {
+            margin: 0; padding: 0;
+            background-color: #fce4ec;
+            font-family: 'Fredoka', sans-serif;
+            overflow: hidden; /* Sin scroll */
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; touch-action: none;
+        }
+
+        /* Lienzo del juego (Donde vuelas) */
+        canvas {
+            background: linear-gradient(to bottom, #81d4fa, #e1f5fe);
+            border: 4px solid #880e4f;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            max-width: 100%; max-height: 100vh;
+        }
+
+        /* --- CAPAS SUPERPUESTAS (Inicio, Fin, Logro) --- */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center;
+            background: rgba(252, 228, 236, 0.95); /* Fondo semitransparente */
+            z-index: 20;
+            transition: opacity 0.5s;
+        }
+        .hidden { opacity: 0; pointer-events: none; z-index: -1; }
+
+        /* Pantalla de Inicio */
+        .start-content img { width: 150px; border-radius: 10px; margin-bottom: 20px; }
+        h1 { color: #880e4f; font-size: 2rem; margin: 0 0 10px 0; text-align: center; }
+        p { color: #d81b60; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; text-align: center; padding: 0 20px;}
+        
+        button {
+            background: #d81b60; color: white; border: none;
+            padding: 15px 40px; font-size: 1.5rem; border-radius: 50px;
+            cursor: pointer; box-shadow: 0 5px 0 #ad1457;
+            font-family: 'Fredoka', sans-serif;
+        }
+        button:active { transform: translateY(4px); box-shadow: 0 1px 0 #ad1457; }
+
+        /* --- ESCENA FINAL (EL ABRAZO) --- */
+        #final-scene {
+            background: transparent; /* Se ve el juego de fondo al principio */
+            /* Se activará al ganar */
+        }
+        
+        .hug-container {
+            position: relative;
+            text-align: center;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        /* Imagen del Abrazo (Grande y centrada) */
+        .hug-sticker {
+            width: 250px; height: auto;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+            margin-bottom: 20px;
+        }
+
+        .letter-box {
+            background: white; padding: 20px; border-radius: 20px;
+            border: 3px solid #f8bbd0;
+            max-width: 80%; margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+        /* --- GIF DEL LOGRO (XVOX) --- */
+        #achievement-gif {
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%); 
+            z-index: 9999; width: 350px; max-width: 90%; display: none;
+        }
+    </style>
 </head>
 <body>
 
-    <div id="start-screen" class="start-overlay">
-        <h1>MONKY QUEST 🐒</h1>
-        <img src="fotos/inicio.gif" alt="Intro Game" class="start-gif">
-        <p>🔊 Sube el volumen para jugar</p>
-        <button id="start-btn">PRESS START 🚀</button>
-    </div>
-
-    <audio id="achievementSound" preload="auto">
-        <source src="https://lyhuwu.github.io/Monito-exe/xbox.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="jumpSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+    <audio id="scoreSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="winSound" src="https://lyhuwu.github.io/Monito-exe/xbox.mp3"></audio>
 
     <img id="achievement-gif" src="fotos/xvox.gif" alt="Logro Xbox">
 
-    <div id="game-box" class="game-container">
-        <h1>Acorta la distancia 🌍</h1>
-        <p class="subtitle" id="status-text">¡Sigue el camino sin chocar! 💣</p>
+    <canvas id="gameCanvas" width="350" height="600"></canvas>
 
-        <div class="track-container">
-            
-            <svg class="zigzag-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <path d="M0,50 C25,0 25,100 50,50 C75,0 75,100 100,50" fill="none" stroke="#f8bbd0" stroke-width="2" stroke-dasharray="5,5" />
-            </svg>
-
-            <div class="obstacle bomb-1">💣</div>
-            <div class="obstacle bomb-2">💣</div>
-            <div class="obstacle bomb-3">💣</div>
-
-            <div class="goal" id="goalMonky">
-                <img src="fotos/monky-meta.png" alt="Meta" class="goal-img">
-            </div>
-
-            <div class="hug-sticker" id="hugSticker">
-                <img src="fotos/monkys-abrazados.png" alt="Abrazo" class="hug-img">
-            </div>
-
-            <div id="traveler" class="traveler-monky">
-                <img src="fotos/monky-viajero.png" alt="Yo">
-            </div>
-            
-            <input type="range" min="0" max="100" value="0" class="slider" id="loveSlider">
-            
-            <div class="km-counter" id="kmText">3000 km</div>
-        </div>
-
-        <div id="hidden-letter" class="letter-box">
-            <h2>¡Por fin juntas! 🏡</h2>
-            <p>
-                Recorrí cada curva, esquivé cada bomba y crucé el mundo entero solo para esto.<br><br>
-                Mi lugar favorito en el mundo es justo ahí: <b>a tu lado.</b><br><br>
-                Pronto esta distancia será de 0 centímetros para siempre.<br><br>
-                Te amo con todo mi corazón de Monky.
-            </p>
-            <div class="heart-icon">💖</div>
+    <div id="startScreen" class="overlay">
+        <div class="start-content" style="text-align: center;">
+            <h1>MONKY FLY 🐒✈️</h1>
+            <img src="fotos/inicio.gif" alt="Intro">
+            <p>Esquiva las bombas y vuela hacia mis brazos.<br>Meta: <b>10 Puntos</b></p>
+            <button onclick="startGame()">¡DESPEGAR!</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <div id="gameOverScreen" class="overlay hidden">
+        <h1>¡CUIDADO! 💥</h1>
+        <p>El amor es persistente.<br>¡Inténtalo de nuevo!</p>
+        <button onclick="resetGame()">REINTENTAR ↺</button>
+    </div>
+
+    <div id="finalScreen" class="overlay hidden">
+        <div class="hug-container">
+            <img src="fotos/monkys-abrazados.png" class="hug-sticker" alt="Abrazo Final">
+            
+            <div class="letter-box">
+                <h2 style="color:#d81b60; margin:0;">¡Juntas! 🏡</h2>
+                <p style="font-size: 0.9rem; color:#555;">
+                    No importa cuántos obstáculos haya en el camino.<br>
+                    Siempre volaré hacia ti.<br>
+                    <b>Te amo, Monky.</b>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        // IMÁGENES
+        const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
+        const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png"; // Sofi esperándote
+        const imgObstacle = new Image(); imgObstacle.src = "fotos/obstaculo.png"; // Bomba
+        
+        // SONIDOS
+        const jumpSnd = document.getElementById("jumpSound");
+        const scoreSnd = document.getElementById("scoreSound");
+        const winSnd = document.getElementById("winSound");
+        const gifLogro = document.getElementById("achievement-gif");
+
+        // VARIABLES DE ESTADO
+        let frames = 0;
+        let score = 0;
+        let gameState = 'START'; // START, PLAYING, MOVING_TO_HUG, END
+        const WIN_SCORE = 10; // Puntos para ganar (Cámbialo si quieres más difícil)
+
+        // EL MONKY JUGADOR
+        const monky = {
+            x: 50, y: 200, width: 50, height: 50,
+            speed: 0, gravity: 0.25, jump: 4.6,
+            draw: function() {
+                if(imgPlayer.complete) ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height);
+            },
+            update: function() {
+                // Solo aplica gravedad si estamos jugando
+                if (gameState === 'PLAYING') {
+                    this.speed += this.gravity;
+                    this.y += this.speed;
+
+                    // Techo y Suelo
+                    if(this.y + this.height > canvas.height || this.y < 0) {
+                        gameOver();
+                    }
+                }
+            },
+            flap: function() {
+                if (gameState === 'PLAYING') {
+                    this.speed = -this.jump;
+                    jumpSnd.currentTime = 0; jumpSnd.play().catch(()=>{});
+                }
+            }
+        };
+
+        // OBSTÁCULOS
+        const pipes = {
+            items: [],
+            dx: 3, // Velocidad
+            gap: 150, // Hueco para pasar
+            
+            update: function() {
+                if (gameState !== 'PLAYING') return;
+
+                // Crear obstáculos
+                if(frames % 100 === 0) {
+                    let maxPos = -100; // Altura máxima
+                    let yPos = Math.floor(Math.random() * (canvas.height - this.gap - 100)) - 100;
+                    
+                    this.items.push({
+                        x: canvas.width,
+                        y: yPos // Posición del obstáculo de arriba
+                    });
+                }
+
+                for(let i = 0; i < this.items.length; i++) {
+                    let p = this.items[i];
+                    p.x -= this.dx;
+
+                    // Colisiones
+                    // (Simplificado: chocas si tocas el rectángulo de arriba o abajo)
+                    let pipeW = 50; 
+                    let pipeH = 300; // Altura del obstáculo imagen
+                    
+                    // Lógica simple de colisión rectangular
+                    // Tubo Arriba: y hasta y+300
+                    // Tubo Abajo: y+300+gap hasta fin
+                    
+                    // Colisión Arriba
+                    if (monky.x < p.x + pipeW && monky.x + monky.width > p.x &&
+                        monky.y < p.y + pipeH) {
+                        gameOver();
+                    }
+                    // Colisión Abajo
+                    if (monky.x < p.x + pipeW && monky.x + monky.width > p.x &&
+                        monky.y + monky.height > p.y + pipeH + this.gap) {
+                        gameOver();
+                    }
+
+                    // Puntos
+                    if(p.x + pipeW <= 0) {
+                        this.items.shift();
+                        score++;
+                        scoreSnd.play().catch(()=>{});
+                        // GANAR
+                        if(score >= WIN_SCORE) startCinematicEnding();
+                    }
+                }
+            },
+            draw: function() {
+                for(let i = 0; i < this.items.length; i++) {
+                    let p = this.items[i];
+                    let pipeH = 300; // Asumimos altura de imagen obstáculo
+                    
+                    // Dibujamos obstáculo arriba
+                    // (Si no tienes imagen voltea, usa un color sólido)
+                    ctx.drawImage(imgObstacle, p.x, p.y, 50, pipeH);
+                    
+                    // Dibujamos obstáculo abajo
+                    ctx.drawImage(imgObstacle, p.x, p.y + pipeH + this.gap, 50, pipeH);
+                }
+            },
+            reset: function() { this.items = []; }
+        };
+
+        // --- BUCLE DEL JUEGO ---
+        function loop() {
+            // Limpiar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (gameState === 'PLAYING') {
+                monky.draw();
+                monky.update();
+                pipes.draw();
+                pipes.update();
+                drawScore();
+                frames++;
+                requestAnimationFrame(loop);
+            } 
+            else if (gameState === 'MOVING_TO_HUG') {
+                // Cinemática final
+                animateEnding();
+                requestAnimationFrame(loop);
+            }
+        }
+
+        function drawScore() {
+            ctx.fillStyle = "#FFF"; ctx.strokeStyle = "#880e4f";
+            ctx.lineWidth = 3; ctx.font = "40px Fredoka";
+            ctx.strokeText(score, canvas.width/2 - 10, 60);
+            ctx.fillText(score, canvas.width/2 - 10, 60);
+        }
+
+        // --- FUNCIONES DE CONTROL ---
+        function startGame() {
+            document.getElementById("startScreen").classList.add("hidden");
+            gameState = 'PLAYING';
+            // Desbloquear audio final en silencio
+            winSnd.volume = 0; winSnd.play().then(()=> winSnd.pause());
+            loop();
+        }
+
+        function gameOver() {
+            gameState = 'END';
+            document.getElementById("gameOverScreen").classList.remove("hidden");
+        }
+
+        function resetGame() {
+            monky.y = 200; monky.speed = 0;
+            pipes.reset();
+            score = 0; frames = 0;
+            gameState = 'PLAYING';
+            document.getElementById("gameOverScreen").classList.add("hidden");
+            loop();
+        }
+
+        // --- LA CINEMÁTICA DEL ABRAZO ---
+        let goalX = 250; // Donde aparecerá Sofi
+        let goalY = 250;
+        
+        function startCinematicEnding() {
+            gameState = 'MOVING_TO_HUG';
+            pipes.items = []; // Quitar bombas
+        }
+
+        function animateEnding() {
+            // 1. Dibujar a Sofi (Meta) esperando a la derecha
+            ctx.drawImage(imgGoal, goalX, goalY, 60, 60);
+
+            // 2. Mover a tu Monky automáticamente hacia ella
+            let dx = goalX - monky.x;
+            let dy = goalY - monky.y;
+            
+            monky.x += dx * 0.05; // Mover suave (5%)
+            monky.y += dy * 0.05;
+
+            // Dibujar a tu Monky volando
+            monky.draw();
+
+            // 3. DETECTAR EL ABRAZO (Cuando están cerca)
+            if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+                triggerFinalHug();
+            }
+        }
+
+        function triggerFinalHug() {
+            gameState = 'END'; // Detener loop
+            
+            // 1. Mostrar pantalla final con el Sticker
+            const finalScreen = document.getElementById("finalScreen");
+            finalScreen.classList.remove("hidden");
+            
+            // 2. Sonido y Logro
+            winSnd.volume = 1.0; winSnd.currentTime = 0; winSnd.play();
+            
+            gifLogro.style.display = 'block';
+            // Reiniciar gif
+            let src = gifLogro.src; gifLogro.src = ''; gifLogro.src = src;
+
+            // 3. Confeti
+            var defaults = { spread: 360, ticks: 100, gravity: 0, decay: 0.94, startVelocity: 30 };
+            confetti({ ...defaults, particleCount: 100, scalar: 1.2, shapes: ['heart'] });
+
+            // Ocultar gif logro a los 10s
+            setTimeout(() => { gifLogro.style.display = 'none'; }, 9950);
+        }
+
+        // CONTROLES
+        window.addEventListener("click", () => monky.flap());
+        window.addEventListener("touchstart", (e) => { e.preventDefault(); monky.flap(); }, {passive: false});
+
+    </script>
 </body>
 </html>
