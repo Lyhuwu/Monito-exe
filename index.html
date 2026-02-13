@@ -12,9 +12,7 @@
 
     <div id="start-screen" class="start-overlay">
         <h1>MONKY QUEST 🐒</h1>
-        
         <img src="fotos/inicio.gif" alt="Intro Game" class="start-gif">
-        
         <p>🔊 Sube el volumen para jugar</p>
         <button id="start-btn">PRESS START 🚀</button>
     </div>
@@ -25,11 +23,15 @@
 
     <img id="achievement-gif" src="fotos/xvox.gif" alt="Logro Xbox">
 
-    <div class="game-container">
+    <div id="game-box" class="game-container">
         <h1>Acorta la distancia 🌍</h1>
-        <p class="subtitle">¡No lo sueltes o se regresará!</p>
+        <p class="subtitle" id="status-text">¡Cuidado con la turbulencia! 🌩️</p>
 
         <div class="track-container">
+            
+            <div class="obstacle storm-1">🌩️</div>
+            <div class="obstacle storm-2">🌩️</div>
+
             <div class="goal" id="goalMonky">
                 <img src="fotos/monky-meta.png" alt="Meta" class="goal-img">
             </div>
