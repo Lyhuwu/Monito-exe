@@ -25,42 +25,21 @@ canvas {
     z-index: 101;
 }
 
-/* Utilidad para ocultar pantallas de inicio/fin */
 .hidden-layer { display: none !important; }
 
 /* --- PANTALLA FINAL (OPTIMIZACIÓN DE RENDER) --- */
-/* Esta pantalla siempre existe (display: flex), pero es invisible al inicio */
 #finalScreen {
     background: transparent !important;
-    opacity: 0;              /* Invisible */
-    pointer-events: none;    /* Click traspasa */
-    z-index: 200;            /* Encima de todo */
-    will-change: opacity;    /* Aviso a la GPU */
-    transition: none !important; /* Sin delay de transición */
+    opacity: 0;              
+    pointer-events: none;    
+    z-index: 200;            
+    will-change: opacity;    
+    transition: none !important; 
 }
 
-/* Clase para mostrarla instantáneamente */
 #finalScreen.visible {
     opacity: 1 !important;
     pointer-events: auto;
-}
-
-/* --- ANIMACIÓN STICKER --- */
-@keyframes popIn {
-    0% { transform: scale(0); opacity: 0; }
-    60% { transform: scale(1.15); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.animate-pop {
-    opacity: 1 !important;
-    animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
-}
-
-#stickerAbacho {
-    opacity: 0;
-    transform: scale(0);
-    will-change: transform, opacity;
 }
 
 /* --- ESTILOS VISUALES --- */
@@ -90,6 +69,27 @@ button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
     display: flex; justify-content: center; z-index: 1000;
 }
 #achievement-gif { 
-    width: 403px; /* +15% tamaño */
+    width: 403px; 
     max-width: 90%; 
+}
+
+/* --- ESTADO INICIAL DEL STICKER --- */
+#stickerAbacho {
+    opacity: 0;
+    transform: scale(0);
+    will-change: transform, opacity;
+}
+
+/* 🟢 NUEVA ANIMACIÓN ÉPICA (ESTILO VIDEOJUEGO) */
+@keyframes superPopEpic {
+    0% { opacity: 0; transform: scale(0) rotate(-20deg); }
+    50% { opacity: 1; transform: scale(1.3) rotate(5deg); }
+    70% { transform: scale(0.9) rotate(-3deg); }
+    85% { transform: scale(1.05) rotate(2deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.epic-sticker-anim {
+    opacity: 1 !important;
+    animation: superPopEpic 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
 }
