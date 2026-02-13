@@ -59,34 +59,33 @@ h1 { color: #880e4f; margin-bottom: 5px; font-size: 2rem; }
 
 .track-container {
     position: relative; width: 100%; 
-    height: 150px; /* Más alto para que quepan las curvas */
+    height: 150px; /* Altura para las curvas */
     margin-top: 40px; margin-bottom: 20px; 
 }
 
-/* EL DIBUJO DEL CAMINO SVG */
+/* EL DIBUJO DEL CAMINO SVG (Fondo) */
 .zigzag-svg {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 1; /* Al fondo */
-    overflow: visible;
+    z-index: 1; overflow: visible; opacity: 0.6;
 }
 
-/* OBSTÁCULOS (BOMBAS) posicionadas en las curvas */
+/* OBSTÁCULOS (BOMBAS) */
 .obstacle {
     position: absolute; font-size: 1.8rem; z-index: 5; 
     animation: pulseBomb 1s infinite;
 }
 @keyframes pulseBomb { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
-/* Coordenadas aproximadas para caer en la línea curva */
-.bomb-1 { top: 10%; left: 22%; } 
-.bomb-2 { top: 60%; left: 50%; }
-.bomb-3 { top: 10%; left: 78%; }
+/* Posiciones calculadas para caer en la curva */
+.bomb-1 { top: 15%; left: 23%; } 
+.bomb-2 { top: 60%; left: 48%; }
+.bomb-3 { top: 15%; left: 73%; }
 
-.goal { position: absolute; right: 0px; top: 20px; z-index: 10; transition: opacity 0.3s; }
+.goal { position: absolute; right: 0px; top: 50%; transform: translateY(-50%); z-index: 10; transition: opacity 0.3s; }
 .goal-img { width: 70px; height: auto; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1)); }
 
 .hug-sticker {
-    position: absolute; right: 0px; top: -10px; z-index: 20;
+    position: absolute; right: 0px; top: 10px; z-index: 20;
     opacity: 0; transform: scale(0.5);
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none;
 }
@@ -95,31 +94,32 @@ h1 { color: #880e4f; margin-bottom: 5px; font-size: 2rem; }
 .opacity-0 { opacity: 0; }
 .km-counter { position: absolute; bottom: -30px; width: 100%; font-weight: bold; color: #880e4f; opacity: 0.7; }
 
-/* --- EL MONKY QUE SE MUEVE --- */
+/* --- EL MONKY VIAJERO --- */
 .traveler-monky {
     position: absolute;
-    width: 80px; height: 80px;
+    width: 70px; height: 70px;
     z-index: 8;
-    /* Se moverá con JS, iniciamos fuera */
-    top: 20px; left: 0;
-    pointer-events: none; /* Para que no estorbe al touch */
-    transition: transform 0.1s; /* Suavizar giro */
+    top: 50%; left: 0; /* Posición inicial */
+    pointer-events: none; /* CLAVE: Deja pasar el click al slider */
 }
 .traveler-monky img { width: 100%; height: 100%; object-fit: contain; }
 
 /* --- SLIDER INVISIBLE (EL TRUCO) --- */
 .slider {
     -webkit-appearance: none; 
-    width: 100%; height: 100%; /* Cubre todo el área */
+    width: 100%; 
+    height: 100%; /* Cubre TODO el contenedor */
     position: absolute; top: 0; left: 0;
     background: transparent; /* Invisible */
     outline: none;
-    z-index: 20; /* Encima de todo para detectar el dedo */
+    z-index: 50; /* ¡MUY IMPORTANTE! Encima de todo */
     cursor: grab;
 }
+/* El "mango" del slider (invisible pero grande para tocarlo fácil) */
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none; appearance: none;
-    width: 50px; height: 100px; /* Grande para que sea fácil tocar */
+    width: 80px; 
+    height: 150px; /* Gigante verticalmente para que no falles */
     background: transparent; 
     border: none;
 }
