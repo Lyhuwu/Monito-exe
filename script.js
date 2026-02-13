@@ -146,32 +146,42 @@ function loop() {
     }
 }
 
+// --- EVENTOS DE INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
-    canvas = document.getElementById("gameCanvas"); ctx = canvas.getContext("2d");
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
+    // 1. CONFIGURACIÓN DEL CANVAS (Lo que ya tenías)
+    canvas = document.getElementById("gameCanvas"); 
+    ctx = canvas.getContext("2d");
+    
+    function resize() { 
+        canvas.width = window.innerWidth; 
+        canvas.height = window.innerHeight; 
+    }
+    window.addEventListener('resize', resize); 
+    resize();
 
+    // 2. CONTROLES TÁCTILES Y MOUSE (Lo que ya tenías)
     window.addEventListener("touchstart", (e) => { 
+        // Si es el primer toque y la música no suena, intentamos arrancarla
+        if (gameState === 'START') unlockMusic();
+        
         if (gameState === 'PLAYING') { e.preventDefault(); monky.flap(); }
     }, {passive: false});
 
     window.addEventListener("mousedown", (e) => { 
+        if (gameState === 'START') unlockMusic();
         if (gameState === 'PLAYING') monky.flap();
     });
-});
-// --- EVENTOS ---
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (tu código existente de canvas) ...
-    
-    // 👇 AÑADE ESTO PARA INTENTAR REPRODUCIR LA MÚSICA 👇
+
+    // 3. MÚSICA DE FONDO (Lo nuevo corregido)
     const music = document.getElementById("startMusic");
-    music.volume = 0.5; // Volumen al 50% para que no aturda
-    
-    // Los navegadores a veces bloquean el audio automático. 
-    // Esto intenta reproducirlo al primer toque en la pantalla.
-    document.body.addEventListener('click', function() {
-        if (music.paused && gameState === 'START') {
-            music.play().catch(()=>{});
+    if(music) music.volume = 0.5; // Volumen suave
+
+    // Función auxiliar para desbloquear audio en móviles
+    function unlockMusic() {
+        if (music && music.paused && gameState === 'START') {
+            music.play().catch(() => {});
+            // Una vez que suena, ya no necesitamos intentar desbloquearlo
+            // (El navegador ya nos dio permiso)
         }
-    }, { once: true }); // Solo se ejecuta una vez
+    }
 });
