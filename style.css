@@ -1,7 +1,8 @@
-
+/* --- CONFIGURACIÓN BASE --- */
 body {
     margin: 0; padding: 0;
-    background-color: #fce4ec;
+    /* Color de fondo de la página (detrás del canvas) */
+    background-color: #222; 
     font-family: 'Fredoka', sans-serif;
     overflow: hidden; 
     display: flex; justify-content: center; align-items: center;
@@ -9,53 +10,58 @@ body {
 }
 
 canvas {
-    /* Asegúrate de que esta ruta sea correcta si pusiste el GIF */
-    background: linear-gradient(to bottom, #81d4fa, #e1f5fe);
-    background-size: cover; background-position: center;
+    /* 🔴 SOLUCIÓN DEL FONDO GIF 🔴 */
+    /* 1. Ponemos la URL entre comillas simples */
+    background-image: url('fotos/fondo.gif');
+    /* 2. Ajustamos para que cubra todo */
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    /* Si la imagen falla, se verá este azul cielo de respaldo */
+    background-color: #81d4fa; 
+
     border: 4px solid #880e4f;
     border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    max-width: 100%; max-height: 100vh;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    
+    /* Tamaño */
     display: block;
+    max-width: 100%; max-height: 100vh;
 }
 
-/* --- CAPAS (Overlays: Inicio y Game Over) --- */
-/* Estas sí tendrán fondo rosa para tapar el juego antes de empezar */
+/* --- CAPAS (Overlays) FIXED para evitar Delay --- */
 .overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    position: fixed; /* Ocupa toda la pantalla del cel */
+    top: 0; left: 0; width: 100%; height: 100%;
+    
     display: flex; flex-direction: column; 
     justify-content: center; align-items: center;
-    background: rgba(252, 228, 236, 0.98); /* Fondo rosa casi sólido */
+    
+    /* Fondo semi-transparente para Inicio y Game Over */
+    background: rgba(252, 228, 236, 0.98); 
     z-index: 20; 
     transition: opacity 0.3s; 
 }
+
 .hidden { opacity: 0; pointer-events: none; z-index: -1; }
 .center-content { text-align: center; }
 
-/* --- 🟢 EL CAMBIO CLAVE: FINAL TRANSPARENTE --- */
-/* Esto sobreescribe la regla .overlay solo para la pantalla final */
+/* --- PANTALLA FINAL TRANSPARENTE --- */
 #finalScreen {
-    /* Fondo transparente para ver el juego detrás */
     background: transparent !important; 
-    /* Sin transición de fundido, aparición instantánea */
-    transition: none !important;
-    /* Aseguramos que el contenido esté centrado sobre el canvas */
-    justify-content: center; 
+    transition: none !important; /* Aparición INSTANTÁNEA */
 }
 
-/* Animación del Abrazo (Aparición rápida "Pop") */
+/* Abrazo */
 .hug-container { 
     position: relative; 
-    text-align: center; 
-    /* 0.3s es muy rápido, se sentirá instantáneo */
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    /* Un poco de sombra para que resalte sobre el fondo del juego */
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+    text-align: center;
+    animation: none; /* Sin animación de entrada */
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)); /* Resplandor para que se lea bien */
 }
-@keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-
-/* Textos y Botones */
+/* --- ESTILOS DE TEXTO E IMÁGENES --- */
 h1 { color: #880e4f; font-size: 2rem; margin: 0 0 10px 0; text-align: center; }
 p { color: #d81b60; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; text-align: center; padding: 0 20px;}
 
@@ -68,19 +74,18 @@ button {
 }
 button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
 
-/* Imágenes */
 .start-img { width: 150px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-.hug-sticker { width: 250px; height: auto; margin-bottom: 20px; }
+.hug-sticker { width: 260px; height: auto; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;}
 
-/* Caja de Carta */
+/* Carta */
 .letter-box {
-    background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
-    max-width: 85%; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    background: white; padding: 15px; border-radius: 20px; border: 3px solid #f8bbd0;
+    width: 85%; max-width: 400px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
-.letter-box h2 { color: #d81b60; margin: 0; }
-.letter-box p { font-size: 0.9rem; color: #555; }
+.letter-box h2 { color: #d81b60; margin: 0 0 5px 0; font-size: 1.5rem; }
+.letter-box p { font-size: 1rem; color: #555; margin: 0; line-height: 1.4; }
 
-/* Gif Logro (Capa superior) */
+/* GIF DEL LOGRO (Capa Superior) */
 #achievement-gif {
     position: fixed; top: 10px; left: 50%; transform: translateX(-50%); 
     z-index: 9999; width: 350px; max-width: 90%; display: none;
