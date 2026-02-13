@@ -36,7 +36,8 @@ const pipes = {
             if(p.x + 65 <= 0) {
                 this.items.shift(); score++;
                 document.getElementById("scoreSound").play().catch(()=>{});
-                if(score >= WIN_SCORE) triggerFinalHug();
+                // ⚠️ AQUÍ CAMBIÓ: Ahora llamamos a la cinemática, no al final directo
+                if(score >= WIN_SCORE) startCinematicEnding();
             }
         }
     },
@@ -71,26 +72,55 @@ function gameOverGlobal() {
     document.getElementById("gameOverScreen").classList.remove("hidden-layer");
 }
 
+// --- LÓGICA DE CINEMÁTICA (RECUPERADA) ---
+let goalX = 0, goalY = 0;
+
+function startCinematicEnding() {
+    gameState = 'MOVING_TO_HUG'; 
+    pipes.items = []; // Limpiamos tuberías para que no estorben
+    // Definimos dónde aparecerá la meta (un poco a la derecha y centrado)
+    goalX = canvas.width * 0.8; 
+    goalY = canvas.height / 2 - 35;
+}
+
+function animateEnding() {
+    // Dibujamos la meta
+    ctx.drawImage(imgGoal, goalX, goalY, 70, 70);
+    
+    // Calculamos distancia
+    let dx = goalX - monky.x;
+    let dy = goalY - monky.y;
+    
+    // Movemos al monito hacia la meta (velocidad 0.04 para que se note el viaje)
+    monky.x += dx * 0.04;
+    monky.y += dy * 0.04;
+    
+    monky.draw();
+
+    // Si está muy cerca (menos de 5px), activamos el abrazo final
+    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) triggerFinalHug();
+}
+
+// --- FINAL OPTIMIZADO (GHOST RENDERING) ---
 function triggerFinalHug() {
     gameState = 'END'; cancelAnimationFrame(gameLoopId);
     
-    // --- REFERENCIAS ---
+    // Referencias
     const finalScreen = document.getElementById("finalScreen");
     const achievementLayer = document.getElementById("achievement-layer");
     const sticker = document.getElementById("stickerAbacho");
     const achievementGif = document.getElementById("achievement-gif");
 
-    // --- ACTIVACIÓN ---
     // 1. Mostrar Logro
     achievementLayer.classList.remove("hidden-layer");
 
-    // 2. Mostrar Pantalla Final (Ghost Rendering)
+    // 2. Mostrar Pantalla Final (Ghost Rendering: visible al instante)
     finalScreen.classList.add("visible");
 
-    // 3. Sticker con nueva animación (Inflado Suave)
-    sticker.classList.remove("sticker-inflate"); // Limpiamos clase anterior
-    void sticker.offsetWidth; // Reflow crítico
-    sticker.classList.add("sticker-inflate"); // Activamos la nueva
+    // 3. Sticker con animación "Inflado Suave"
+    sticker.classList.remove("sticker-inflate");
+    void sticker.offsetWidth; // Reflow
+    sticker.classList.add("sticker-inflate");
 
     // 4. Multimedia
     document.getElementById("winSound").play().catch(()=>{});
@@ -99,17 +129,23 @@ function triggerFinalHug() {
     // Reset GIF
     const src = achievementGif.src; achievementGif.src = ''; achievementGif.src = src;
 
-    // Timer Logro (9.95s)
+    // Timer Logro
     setTimeout(() => { document.getElementById("achievement-layer").classList.add("hidden-layer"); }, 9950);
 }
 
 function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     if (gameState === 'PLAYING') {
         monky.draw(); monky.update(); pipes.draw(); pipes.update();
         ctx.fillStyle = "#FFF"; ctx.font = "bold 45px Fredoka";
         ctx.fillText(score, canvas.width/2 - 15, 80);
         frames++; gameLoopId = requestAnimationFrame(loop);
+    } 
+    // ⚠️ RECUPERADO: El estado de cinemática
+    else if (gameState === 'MOVING_TO_HUG') {
+        animateEnding();
+        gameLoopId = requestAnimationFrame(loop);
     }
 }
 
