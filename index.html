@@ -17,14 +17,14 @@
     <audio id="scoreSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
     <audio id="winSound" src="https://lyhuwu.github.io/Monito-exe/xbox.mp3" preload="auto"></audio>
 
-    <div id="achievement-layer" class="invisible">
+    <div id="achievement-layer" class="hidden-layer">
         <img id="achievement-gif" src="fotos/xvox.gif" alt="Logro Xbox">
     </div>
 
     <canvas id="gameCanvas"></canvas>
 
-    <div id="startScreen" class="overlay">
-        <div class="center-content">
+    <div id="startScreen" class="overlay-container">
+        <div class="content-box">
             <h1>MONKY FLY 🐒✈️</h1>
             <img src="fotos/inicio.gif" alt="Intro" class="start-img" onerror="this.style.display='none'">
             <p>Esquiva y llega a mis brazos.<br>Meta: <b>7 Puntos</b></p>
@@ -32,17 +32,17 @@
         </div>
     </div>
 
-    <div id="gameOverScreen" class="overlay invisible">
-        <div class="center-content">
+    <div id="gameOverScreen" class="overlay-container hidden-layer">
+        <div class="content-box">
             <h1>¡CHOCASTE! 💥</h1>
             <p>No te rindas, mi amor.<br>¡Inténtalo de nuevo!</p>
             <button onclick="reiniciarJuegoGlobal()">REINTENTAR ↺</button>
         </div>
     </div>
 
-    <div id="finalScreen" class="overlay final-overlay invisible">
-        <div class="hug-container">
-            <img id="abrazo" src="fotos/monkys-abrazados.png" class="hug-sticker" alt="Abrazo Final">
+    <div id="finalScreen" class="overlay-container final-overlay hidden-layer">
+        <div class="hug-wrapper">
+            <img id="stickerFinal" src="fotos/monkys-abrazados.png" class="hug-img" alt="Abrazo Final">
             <div class="letter-box">
                 <h2>¡Juntas! 🏡</h2>
                 <p>Cruzaría el cielo mil veces por ti.<br><b>Te amo, Monky.</b></p>
