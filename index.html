@@ -25,12 +25,13 @@
 
     <div id="game-box" class="game-container">
         <h1>Acorta la distancia 🌍</h1>
-        <p class="subtitle" id="status-text">¡Cuidado con la turbulencia! 🌩️</p>
+        <p class="subtitle" id="status-text">¡Cuidado con las bombas! 💣</p>
 
         <div class="track-container">
             
-            <div class="obstacle storm-1">🌩️</div>
-            <div class="obstacle storm-2">🌩️</div>
+            <div class="obstacle bomb-1">💣</div>
+            <div class="obstacle bomb-2">💣</div>
+            <div class="obstacle bomb-3">💣</div>
 
             <div class="goal" id="goalMonky">
                 <img src="fotos/monky-meta.png" alt="Meta" class="goal-img">
@@ -40,7 +41,7 @@
                 <img src="fotos/monkys-abrazados.png" alt="Abrazo" class="hug-img">
             </div>
             
-            <input type="range" min="0" max="100" value="0" class="slider" id="loveSlider" oninput="checkHug()">
+            <input type="range" min="0" max="100" value="0" class="slider" id="loveSlider" oninput="checkObstacles()">
             
             <div class="km-counter" id="kmText">3000 km</div>
         </div>
