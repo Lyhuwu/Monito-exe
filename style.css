@@ -73,3 +73,32 @@ button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
     opacity: 1 !important;
     animation: gentleInflate 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
 }
+/* --- FONDO DEL INICIO (GIF) --- */
+
+#startScreen {
+
+    /* Cambia el nombre del archivo por tu gif */
+
+    background: url('fotos/fondo-intro.gif') no-repeat center center fixed !important;
+
+    background-size: cover !important;
+
+}
+
+
+
+/* Opcional: Para que el texto se lea bien sobre el GIF, le ponemos una cajita blanca suave */
+
+#startScreen .content-box {
+
+    background: rgba(255, 255, 255, 0.85); /* Blanco semitransparente */
+
+    padding: 30px;
+
+    border-radius: 20px;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+    backdrop-filter: blur(5px); /* Efecto vidrio borroso (muy moderno) */
+
+}
