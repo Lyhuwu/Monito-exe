@@ -87,11 +87,10 @@ function triggerFinalHug() {
     // 2. Mostrar Pantalla Final (Ghost Rendering)
     finalScreen.classList.add("visible");
 
-    // 3. Sticker con nueva animación (Latido)
-    // Quitamos la clase vieja y ponemos la nueva
-    sticker.classList.remove("sticker-heartbeat");
+    // 3. Sticker con nueva animación (Inflado Suave)
+    sticker.classList.remove("sticker-inflate"); // Limpiamos clase anterior
     void sticker.offsetWidth; // Reflow crítico
-    sticker.classList.add("sticker-heartbeat");
+    sticker.classList.add("sticker-inflate"); // Activamos la nueva
 
     // 4. Multimedia
     document.getElementById("winSound").play().catch(()=>{});
