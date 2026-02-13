@@ -1,4 +1,3 @@
-// Esperamos a que el HTML cargue completamente antes de ejecutar
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURACIÓN ---
@@ -33,7 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- OBJETOS ---
     const monky = {
         x: 50, y: 250, width: 50, height: 50,
-        speed: 0, gravity: 0.25, jump: 4.6,
+        
+        // --- 🟢 AQUÍ ESTÁ EL AJUSTE DE DIFICULTAD ---
+        speed: 0, 
+        gravity: 0.18, // ANTES: 0.25 (Cae más lento)
+        jump: 3.8,     // ANTES: 4.6 (Salto más controlable)
         
         draw: function() {
             if(imgPlayer.complete && imgPlayer.naturalHeight !== 0) {
@@ -60,12 +63,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const pipes = {
-        items: [], dx: 3, gap: 160,
+        items: [], 
+        dx: 2.5, // ANTES: 3 (Se mueve más lento hacia la izquierda)
+        gap: 170, // ANTES: 160 (Hueco más grande)
         
         update: function() {
             if (gameState !== 'PLAYING') return;
 
-            if(frames % 100 === 0) {
+            // Generar obstáculo cada 120 frames (antes 100, ahora hay más espacio)
+            if(frames % 120 === 0) {
                 let yPos = Math.floor(Math.random() * (canvas.height - this.gap - 100)) - 100;
                 this.items.push({ x: canvas.width, y: yPos });
             }
