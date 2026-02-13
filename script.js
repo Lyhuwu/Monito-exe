@@ -53,19 +53,35 @@ const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
 const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png";
 
 window.iniciarJuegoGlobal = function() {
-    // 1. Detener música de fondo
+    // Evitar que se ejecute doble si le das muy rápido
+    if (gameState === 'PLAYING') return;
+
+    // 1. Detener música de fondo (Si existe)
     const music = document.getElementById("startMusic");
-    music.pause();
-    music.currentTime = 0; // Reiniciar
+    if(music) {
+        music.pause();
+        music.currentTime = 0;
+    }
 
-    // 2. Reproducir sonido de click
-    const clickS = document.getElementById("clickSound");
-    clickS.play().catch(()=>{});
+    // 2. SONIDO DE CLICK (Método "Force Play" desde JS)
+    // Esto crea el audio al instante, sin depender del HTML
+    const sfx = new Audio('fotos/click.mp3'); 
+    sfx.volume = 0.6; // Volumen al 60%
+    sfx.play().catch((error) => {
+        // Si falla, no importa, el juego sigue
+        console.log("Error de audio:", error);
+    });
 
-    // 3. Ocultar pantalla e iniciar
+    // 3. Ocultar pantalla e iniciar juego
     document.getElementById("startScreen").classList.add("hidden-layer");
-    gameState = 'PLAYING'; score = 0; frames = 0; monky.y = canvas.height / 2;
-    pipes.reset(); loop();
+    
+    // Iniciar variables
+    gameState = 'PLAYING'; 
+    score = 0; 
+    frames = 0; 
+    monky.y = canvas.height / 2;
+    pipes.reset(); 
+    loop();
 };
 
 window.reiniciarJuegoGlobal = function() {
