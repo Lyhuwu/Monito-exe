@@ -31,22 +31,47 @@ canvas {
 }
 
 /* --- VISIBILIDAD INSTANTÁNEA (CERO DELAY) --- */
-.invisible {
-    visibility: hidden; opacity: 0;
-    /* Mantiene el layout calculado pero oculto */
-}
+.invisible { visibility: hidden; opacity: 0; }
 
 .show-instant {
     visibility: visible !important; opacity: 1 !important;
-    transition: none !important; /* Sin suavizado, aparición de golpe */
+    transition: none !important;
 }
 
 .final-overlay { 
     background: transparent !important; 
-    pointer-events: none; /* Dejar ver el juego de fondo */
+    pointer-events: none;
 }
 
-/* --- ELEMENTOS --- */
+/* --- 🟢 ANIMACIONES (La magia del "Pop") --- */
+/* Definimos la animación de inflarse con rebote */
+@keyframes popIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    70% { transform: scale(1.15); opacity: 1; } /* Un rebote simpático */
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Contenedor general (Aparece seco) */
+.hug-container {
+    display: flex; flex-direction: column; align-items: center;
+    /* Quitamos el "animation: none" que tenía antes */
+}
+
+/* EL STICKER (Es el único que se anima) */
+.hug-sticker { 
+    width: 280px; height: auto; margin-bottom: 15px;
+    /* Aplica la animación 'popIn' en 0.5 segundos con un efecto elástico */
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* La carta NO tiene animación (aparece seca) */
+.letter-box {
+    background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
+    width: 85%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+/* --- ELEMENTOS RESTANTES --- */
 h1 { color: #880e4f; font-size: 2.2rem; margin: 0 0 15px 0; }
 p { color: #d81b60; font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; }
 
@@ -59,26 +84,10 @@ button {
 }
 button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
 
-/* IMÁGENES Y CARTA */
 .start-img { width: 160px; border-radius: 20px; margin-bottom: 25px; }
-
-/* Contenedor Final: Abrazo + Carta */
-.hug-container {
-    display: flex; flex-direction: column; align-items: center;
-    animation: none !important; /* IMPORTANTE: Sin animación para que salga YA */
-}
-
-.hug-sticker { width: 280px; height: auto; margin-bottom: 15px; }
-
-.letter-box {
-    background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
-    width: 85%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    text-align: center;
-}
 .letter-box h2 { color: #d81b60; margin: 0 0 10px 0; font-size: 1.5rem; }
 .letter-box p { font-size: 1.1rem; color: #555; margin: 0; }
 
-/* Logro (Capa Superior) */
 #achievement-layer {
     position: fixed; top: 20px; width: 100%;
     display: flex; justify-content: center; z-index: 9999;
