@@ -1,139 +1,61 @@
-:root {
-    --bg-color: #fce4ec;
-    --track-color: #f8bbd0;
-    --accent: #d81b60;
-}
-
 body {
-    margin: 0; padding: 0; height: 100vh;
-    display: flex; justify-content: center; align-items: center;
-    background-color: var(--bg-color);
+    margin: 0; padding: 0;
+    background-color: #fce4ec;
     font-family: 'Fredoka', sans-serif;
-    text-align: center;
-    overflow-y: auto; 
+    overflow: hidden; 
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; touch-action: none; user-select: none;
 }
 
-/* --- PANTALLA DE INICIO --- */
-.start-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: var(--bg-color);
-    display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    z-index: 10000; transition: opacity 0.5s ease-out;
-}
-.start-overlay h1 { font-size: 2.5rem; color: #880e4f; margin-bottom: 15px; text-shadow: 2px 2px 0px #ff80ab; }
-.start-gif { width: 200px; height: auto; margin-bottom: 20px; border-radius: 15px; }
-.start-overlay p { font-size: 1rem; color: #d81b60; margin-bottom: 20px; font-weight: bold; }
-#start-btn {
-    padding: 15px 40px; font-size: 1.5rem; font-weight: bold;
-    background-color: #d81b60; color: white;
-    border: 4px solid #ad1457; border-radius: 50px;
-    box-shadow: 0 6px 0px #880e4f; cursor: pointer; animation: pulseBtn 1.5s infinite;
-}
-#start-btn:active { box-shadow: 0 2px 0px #880e4f; transform: translateY(4px); }
-@keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-.hidden { opacity: 0; pointer-events: none; }
-
-/* --- GIF DEL LOGRO --- */
-#achievement-gif {
-    position: fixed; top: -10px; left: 50%; transform: translateX(-50%); z-index: 9999;
-    width: 380px; max-width: 95%; height: auto;
-    display: none; pointer-events: none;
+canvas {
+    background: linear-gradient(to bottom, #81d4fa, #e1f5fe);
+    border: 4px solid #880e4f;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    max-width: 100%; max-height: 100vh;
+    display: block;
 }
 
-/* --- JUEGO --- */
-.game-container { width: 95%; max-width: 450px; padding: 20px 0; transition: transform 0.1s; position: relative;}
-
-/* Animación de EXPLOSIÓN */
-.shake { animation: shake 0.3s infinite; }
-@keyframes shake {
-  0% { transform: translate(2px, 2px); }
-  25% { transform: translate(-2px, -3px); }
-  50% { transform: translate(3px, 1px); }
-  75% { transform: translate(-3px, 2px); }
-  100% { transform: translate(1px, -2px); }
-}
-
-h1 { color: #880e4f; margin-bottom: 5px; font-size: 2rem; }
-.subtitle { color: #ad1457; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; }
-
-.track-container {
-    position: relative; width: 100%; 
-    height: 150px; /* Altura para las curvas */
-    margin-top: 40px; margin-bottom: 20px; 
-}
-
-/* EL DIBUJO DEL CAMINO SVG (Fondo) */
-.zigzag-svg {
+.overlay {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 1; overflow: visible; opacity: 0.6;
+    display: flex; flex-direction: column; 
+    justify-content: center; align-items: center;
+    background: rgba(252, 228, 236, 0.98); 
+    z-index: 20; transition: opacity 0.5s;
 }
+.hidden { opacity: 0; pointer-events: none; z-index: -1; }
+.center-content { text-align: center; }
 
-/* OBSTÁCULOS (BOMBAS) */
-.obstacle {
-    position: absolute; font-size: 1.8rem; z-index: 5; 
-    animation: pulseBomb 1s infinite;
+h1 { color: #880e4f; font-size: 2rem; margin: 0 0 10px 0; text-align: center; }
+p { color: #d81b60; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; text-align: center; padding: 0 20px;}
+
+/* Botones */
+button {
+    background: #d81b60; color: white; border: none;
+    padding: 20px 50px; font-size: 1.5rem; border-radius: 50px;
+    cursor: pointer; box-shadow: 0 6px 0 #ad1457;
+    font-family: 'Fredoka', sans-serif; font-weight: bold;
+    touch-action: manipulation;
 }
-@keyframes pulseBomb { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
 
-/* Posiciones calculadas para caer en la curva */
-.bomb-1 { top: 15%; left: 23%; } 
-.bomb-2 { top: 60%; left: 48%; }
-.bomb-3 { top: 15%; left: 73%; }
+/* Imágenes */
+.start-img { width: 150px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.hug-sticker { width: 250px; height: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); margin-bottom: 20px; }
 
-.goal { position: absolute; right: 0px; top: 50%; transform: translateY(-50%); z-index: 10; transition: opacity 0.3s; }
-.goal-img { width: 70px; height: auto; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1)); }
-
-.hug-sticker {
-    position: absolute; right: 0px; top: 10px; z-index: 20;
-    opacity: 0; transform: scale(0.5);
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none;
-}
-.hug-img { width: 140px; height: auto; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
-.hug-sticker.show { opacity: 1; transform: scale(1); }
-.opacity-0 { opacity: 0; }
-.km-counter { position: absolute; bottom: -30px; width: 100%; font-weight: bold; color: #880e4f; opacity: 0.7; }
-
-/* --- EL MONKY VIAJERO --- */
-.traveler-monky {
-    position: absolute;
-    width: 70px; height: 70px;
-    z-index: 8;
-    top: 50%; left: 0; /* Posición inicial */
-    pointer-events: none; /* CLAVE: Deja pasar el click al slider */
-}
-.traveler-monky img { width: 100%; height: 100%; object-fit: contain; }
-
-/* --- SLIDER INVISIBLE (EL TRUCO) --- */
-.slider {
-    -webkit-appearance: none; 
-    width: 100%; 
-    height: 100%; /* Cubre TODO el contenedor */
-    position: absolute; top: 0; left: 0;
-    background: transparent; /* Invisible */
-    outline: none;
-    z-index: 50; /* ¡MUY IMPORTANTE! Encima de todo */
-    cursor: grab;
-}
-/* El "mango" del slider (invisible pero grande para tocarlo fácil) */
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 80px; 
-    height: 150px; /* Gigante verticalmente para que no falles */
-    background: transparent; 
-    border: none;
-}
-.slider:active { cursor: grabbing; }
-
+/* Caja de Carta */
 .letter-box {
-    background: white; padding: 25px; border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(136, 14, 79, 0.2);
-    opacity: 0; transform: translateY(30px);
-    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    pointer-events: none; margin-top: 40px; border: 2px solid #f8bbd0; max-height: 50vh; overflow-y: auto;
+    background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
+    max-width: 85%; margin: 0 auto; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
-.letter-box.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-h2 { color: var(--accent); margin-top: 0; }
-p { color: #555; line-height: 1.6; font-size: 1.1rem; }
-.heart-icon { font-size: 2rem; margin-top: 10px; animation: pulse 1s infinite; }
-@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.letter-box h2 { color: #d81b60; margin: 0; }
+.letter-box p { font-size: 0.9rem; color: #555; }
+
+/* Animación Entrada */
+.hug-container { position: relative; text-align: center; animation: popIn 0.8s; }
+@keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+#achievement-gif {
+    position: fixed; top: 10px; left: 50%; transform: translateX(-50%); 
+    z-index: 9999; width: 350px; max-width: 90%; display: none;
+}
