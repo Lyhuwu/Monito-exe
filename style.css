@@ -1,92 +1,97 @@
-/* --- CONFIGURACIÓN BASE --- */
-body {
+/* --- NORMALIZACIÓN DEL VIEWPORT --- */
+html, body {
     margin: 0; padding: 0;
-    /* Color de fondo de la página (detrás del canvas) */
-    background-color: #222; 
+    width: 100%; height: 100%;
+    background-color: #222; /* Fondo de seguridad */
+    overflow: hidden; /* Prevenir scroll */
+    touch-action: none; user-select: none;
     font-family: 'Fredoka', sans-serif;
-    overflow: hidden; 
-    display: flex; justify-content: center; align-items: center;
-    height: 100vh; touch-action: none; user-select: none;
 }
 
+/* --- LIENZO DEL JUEGO (FULLSCREEN REAL) --- */
 canvas {
-    /* 🔴 SOLUCIÓN DEL FONDO GIF 🔴 */
-    /* 1. Ponemos la URL entre comillas simples */
-    background-image: url('fotos/fondo.gif');
-    /* 2. Ajustamos para que cubra todo */
-    background-size: cover; 
-    background-position: center;
-    background-repeat: no-repeat;
-    
-    /* Si la imagen falla, se verá este azul cielo de respaldo */
-    background-color: #81d4fa; 
-
-    border: 4px solid #880e4f;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-    
-    /* Tamaño */
     display: block;
-    max-width: 100%; max-height: 100vh;
+    width: 100%;
+    height: 100%;
+    /* Fondo del juego */
+    background: linear-gradient(to bottom, #81d4fa, #e1f5fe);
+    background-image: url('fotos/fondo.gif');
+    background-size: cover; background-position: center; background-repeat: no-repeat;
+    /* IMPORTANTE: Eliminamos bordes para que coincida con las capas superiores */
+    border: none; box-shadow: none; 
 }
 
-/* --- CAPAS (Overlays) FIXED para evitar Delay --- */
+/* --- SISTEMA DE CAPAS (OVERLAYS) --- */
 .overlay {
-    position: fixed; /* Ocupa toda la pantalla del cel */
+    position: fixed; /* Coordenadas absolutas a la ventana */
     top: 0; left: 0; width: 100%; height: 100%;
-    
     display: flex; flex-direction: column; 
     justify-content: center; align-items: center;
-    
-    /* Fondo semi-transparente para Inicio y Game Over */
-    background: rgba(252, 228, 236, 0.98); 
-    z-index: 20; 
-    transition: opacity 0.3s; 
+    z-index: 20;
+    /* Optimizamos para la GPU */
+    will-change: visibility; 
 }
 
-.hidden { opacity: 0; pointer-events: none; z-index: -1; }
-.center-content { text-align: center; }
-
-/* --- PANTALLA FINAL TRANSPARENTE --- */
-#finalScreen {
-    background: transparent !important; 
-    transition: none !important; /* Aparición INSTANTÁNEA */
+/* Fondos para Inicio y Game Over */
+#startScreen, #gameOverScreen {
+     background: rgba(252, 228, 236, 0.98);
 }
 
-/* Abrazo */
+/* Configuración específica para el Final (Transparente e Instantáneo) */
+.final-overlay {
+    background: transparent !important;
+    pointer-events: none; /* Permitir ver el juego debajo sin interactuar */
+}
+
+/* --- CLASES DE UTILIDAD DE VISIBILIDAD (CERO LATENCIA) --- */
+/* Usamos visibility en vez de display para mantener el layout calculado */
+.invisible {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear 0s, opacity 0.3s;
+}
+
+/* Clase para mostrar elementos instantáneamente */
+.show-instant {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: none !important;
+}
+
+
+/* --- ELEMENTOS DE UI --- */
 .hug-container { 
-    position: relative; 
-    text-align: center;
+    position: relative; text-align: center;
     animation: none; /* Sin animación de entrada */
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)); /* Resplandor para que se lea bien */
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1.0));
+    transform: translateZ(0); /* Forzar aceleración de hardware */
 }
 
-/* --- ESTILOS DE TEXTO E IMÁGENES --- */
+/* Capa del Logro */
+#achievement-layer {
+    position: fixed; top: 20px; width: 100%;
+    display: flex; justify-content: center; z-index: 9999;
+    pointer-events: none;
+}
+#achievement-gif { width: 350px; max-width: 90%; }
+
+
+/* Estilos Generales */
 h1 { color: #880e4f; font-size: 2rem; margin: 0 0 10px 0; text-align: center; }
 p { color: #d81b60; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; text-align: center; padding: 0 20px;}
-
 button {
     background: #d81b60; color: white; border: none;
     padding: 20px 50px; font-size: 1.5rem; border-radius: 50px;
     cursor: pointer; box-shadow: 0 6px 0 #ad1457;
-    font-family: 'Fredoka', sans-serif; font-weight: bold;
-    touch-action: manipulation;
+    font-family: 'Fredoka', sans-serif; font-weight: bold; font-size: 1.2rem;
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
 }
 button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
-
-.start-img { width: 150px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-.hug-sticker { width: 260px; height: auto; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;}
-
-/* Carta */
+.start-img { width: 150px; border-radius: 15px; margin-bottom: 20px; }
+.hug-sticker { width: 280px; height: auto; margin-bottom: 15px; }
 .letter-box {
-    background: white; padding: 15px; border-radius: 20px; border: 3px solid #f8bbd0;
-    width: 85%; max-width: 400px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
+    width: 85%; max-width: 400px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
-.letter-box h2 { color: #d81b60; margin: 0 0 5px 0; font-size: 1.5rem; }
-.letter-box p { font-size: 1rem; color: #555; margin: 0; line-height: 1.4; }
-
-/* GIF DEL LOGRO (Capa Superior) */
-#achievement-gif {
-    position: fixed; top: 10px; left: 50%; transform: translateX(-50%); 
-    z-index: 9999; width: 350px; max-width: 90%; display: none;
-}
+.letter-box h2 { color: #d81b60; margin: 0 0 10px 0; font-size: 1.5rem; }
+.letter-box p { font-size: 1.1rem; color: #555; margin: 0; line-height: 1.4; }
