@@ -65,7 +65,7 @@ window.iniciarJuegoGlobal = function() {
 
     // 2. SONIDO DE CLICK (Método "Force Play" desde JS)
     // Esto crea el audio al instante, sin depender del HTML
-    const sfx = new Audio('fotos/click.mp3'); 
+    const sfx = new Audio('fotos/entrar.mp3'); 
     sfx.volume = 0.6; // Volumen al 60%
     sfx.play().catch((error) => {
         // Si falla, no importa, el juego sigue
