@@ -13,10 +13,18 @@ const monky = {
     flap: function() {
         if (gameState === 'PLAYING') {
             this.speed = -this.jump;
+            
+            // 👇 CÓDIGO MEJORADO PARA EL SONIDO 👇
             let jS = document.getElementById("jumpSound");
-            jS.currentTime = 0; jS.play().catch(()=>{});
+            if (jS) {
+                jS.currentTime = 0; // Rebobinar al inicio
+                jS.volume = 0.4;    // Volumen al 40% (para que no aturda)
+                
+                // Truco: clonar el audio si quieres que se superpongan los saltos
+                // O dejarlo así para que se reinicie.
+                jS.play().catch((e) => console.log("Error audio salto:", e));
+            }
         }
-    }
 };
 
 const pipes = {
