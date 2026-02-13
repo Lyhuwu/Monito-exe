@@ -80,27 +80,29 @@ function triggerFinalHug() {
     const sticker = document.getElementById("stickerAbacho");
     const achievementGif = document.getElementById("achievement-gif");
 
-    // --- ACTIVACIÓN SIMULTÁNEA (SIN DELAY) ---
-    // 1. Mostrar contenedores
+    // --- ACTIVACIÓN ATÓMICA (MISMO FRAME) ---
+    // Removemos la clase oculta de AMBOS contenedores simultáneamente.
     finalScreen.classList.remove("hidden-layer");
     achievementLayer.classList.remove("hidden-layer");
 
-    // 2. Forzar reinicio de animación (Reflow) y activar Pop
+    // --- FORZAR REINICIO DE ANIMACIÓN (REFLOW) ---
     sticker.classList.remove("animate-pop");
-    void sticker.offsetWidth; // Magia para reiniciar animación
+    void sticker.offsetWidth; // ⚠️ Truco crítico para reiniciar animación
     sticker.classList.add("animate-pop");
 
-    // 3. Audio, Confeti y GIF
+    // --- MULTIMEDIA ---
     document.getElementById("winSound").play().catch(()=>{});
     confetti({ spread: 360, ticks: 150, particleCount: 150, shapes: ['heart'] });
     
-    // Reiniciar GIF para que empiece desde frame 0
+    // Reinicio GIF Xbox
     const src = achievementGif.src;
     achievementGif.src = ''; 
     achievementGif.src = src;
 
-    // 4. Ocultar logro tras 9.95s
-    setTimeout(() => { document.getElementById("achievement-layer").classList.add("hidden-layer"); }, 9950);
+    // --- TEMPORIZADOR LOGRO (9.95s) ---
+    setTimeout(() => { 
+        document.getElementById("achievement-layer").classList.add("hidden-layer"); 
+    }, 9950);
 }
 
 function loop() {
@@ -119,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // Bloquear touch solo si estamos jugando (para no romper botones)
+    // Bloqueo de touch solo si estamos jugando
     window.addEventListener("touchstart", (e) => { 
         if (gameState === 'PLAYING') { e.preventDefault(); monky.flap(); }
     }, {passive: false});
