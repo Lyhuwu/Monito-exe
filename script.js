@@ -84,13 +84,14 @@ function triggerFinalHug() {
     // 1. Mostrar Logro
     achievementLayer.classList.remove("hidden-layer");
 
-    // 2. Mostrar Pantalla Final (Ghost Rendering: visible al instante)
+    // 2. Mostrar Pantalla Final (Ghost Rendering)
     finalScreen.classList.add("visible");
 
-    // 3. Sticker Pop ÉPICO (Cambio de clase aquí)
-    sticker.classList.remove("epic-sticker-anim");
+    // 3. Sticker con nueva animación (Latido)
+    // Quitamos la clase vieja y ponemos la nueva
+    sticker.classList.remove("sticker-heartbeat");
     void sticker.offsetWidth; // Reflow crítico
-    sticker.classList.add("epic-sticker-anim");
+    sticker.classList.add("sticker-heartbeat");
 
     // 4. Multimedia
     document.getElementById("winSound").play().catch(()=>{});
