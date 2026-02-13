@@ -1,50 +1,70 @@
-/* --- BASE --- */
+/* --- CONFIGURACIÓN BASE --- */
 html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
     background-color: #222; overflow: hidden; 
     font-family: 'Fredoka', sans-serif; touch-action: none;
 }
 
-/* --- CENTRADO TOTAL --- */
+canvas {
+    display: block; width: 100%; height: 100%;
+    background-image: url('fotos/fondo.gif');
+    background-size: cover; background-position: center;
+}
+
+/* --- CAPAS Y CENTRADO --- */
 .overlay-container {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(252, 228, 236, 0.98); 
-    z-index: 100;
+    z-index: 100; /* Asegura que esté sobre el canvas */
     display: flex; flex-direction: column;
     justify-content: center; align-items: center;
 }
 
+.content-box { 
+    text-align: center; 
+    display: flex; flex-direction: column; align-items: center; 
+    z-index: 101; /* Contenido sobre el fondo */
+}
+
+/* Clases de utilidad */
 .hidden-layer { display: none !important; }
 .final-overlay { background: transparent !important; pointer-events: none; }
 
-/* 🟢 ANIMACIÓN DE REBOTE/INFLADO (BOUNCE-IN) */
-@keyframes bounceIn {
-    0% { opacity: 0; transform: scale(.3); }
-    50% { opacity: 1; transform: scale(1.05); }
-    70% { transform: scale(.9); }
+/* 🟢 ANIMACIÓN POP-IN (Inflado) */
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
     100% { transform: scale(1); opacity: 1; }
 }
 
 .animate-pop {
-    animation: bounceIn 0.8s cubic-bezier(0.215, 0.610, 0.355, 1.000) both !important;
+    animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
 }
 
-/* --- ELEMENTOS UI --- */
-.hug-wrapper { display: flex; flex-direction: column; align-items: center; }
-.hug-img { width: 280px; height: auto; margin-bottom: 15px; opacity: 0; }
+/* --- ESTILOS VISUALES --- */
+h1 { color: #880e4f; font-size: 2.2rem; margin-bottom: 10px; }
+p { color: #d81b60; font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; }
 
-#achievement-layer {
-    position: fixed; top: 20px; width: 100%;
-    display: flex; justify-content: center; z-index: 1000;
+button {
+    background: #d81b60; color: white; border: none;
+    padding: 18px 60px; font-size: 1.5rem; border-radius: 50px;
+    cursor: pointer; box-shadow: 0 6px 0 #ad1457;
+    font-weight: bold; font-family: 'Fredoka';
+    touch-action: manipulation; /* Mejora respuesta táctil */
+    position: relative; z-index: 102; /* Botón clickable siempre */
 }
+button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
 
-#achievement-gif { 
-    width: 403px; /* Tamaño incrementado un 15% */
-    max-width: 90%; 
-}
+.hug-img { width: 280px; height: auto; margin-bottom: 15px; }
 
 .letter-box {
     background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
     width: 85%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     text-align: center;
 }
+
+#achievement-layer {
+    position: fixed; top: 20px; width: 100%;
+    display: flex; justify-content: center; z-index: 1000;
+}
+#achievement-gif { width: 400px; max-width: 90%; }
