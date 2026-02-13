@@ -123,52 +123,44 @@ let goalX = 0, goalY = 0;
 
 
 
+// --- CINEMÁTICA LENTA (ROMÁNTICA) ---
+let goalX = 0, goalY = 0;
+
 function startCinematicEnding() {
-
     gameState = 'MOVING_TO_HUG'; 
+    pipes.items = []; // Quitamos tubos para limpiar la pantalla
 
-    pipes.items = []; // Quitamos tubos
-
-    
-
-    // 👇 AQUÍ ENCIENDES LA MÚSICA 👇
-
+    // 👇 MÚSICA ROMÁNTICA
     const finalMusic = document.getElementById("finalMusic");
-
     if (finalMusic) {
-
-        finalMusic.volume = 0.2; // 🔈 Volumen bajito (20%) para que sea fondo suave
-
+        finalMusic.volume = 0.2; // Volumen bajito
         finalMusic.play().catch((e) => console.log("Error música final:", e));
-
     }
 
-    // 👆 ----------------------- 👆
-
-
-
-    // Definimos meta
-
+    // Definimos dónde está la meta
     goalX = canvas.width * 0.8; 
-
     goalY = canvas.height / 2 - 35;
-
 }
 
 function animateEnding() {
+    // Dibujar la meta
     ctx.drawImage(imgGoal, goalX, goalY, 70, 70);
     
+    // Calcular distancia
     let dx = goalX - monky.x;
     let dy = goalY - monky.y;
     
+    // Mover al monito lento (0.02)
     monky.x += dx * 0.02;
     monky.y += dy * 0.02;
     
     monky.draw();
 
-    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) triggerFinalHug();
+    // Si están cerca (menos de 5px), activar el abrazo
+    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+        triggerFinalHug();
+    }
 }
-
 function triggerFinalHug() {
     gameState = 'END'; cancelAnimationFrame(gameLoopId);
     
