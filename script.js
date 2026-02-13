@@ -1,163 +1,215 @@
-let hasWon = false;
-const slider = document.getElementById('loveSlider');
-const sound = document.getElementById('achievementSound');
-const startScreen = document.getElementById('start-screen');
-const startBtn = document.getElementById('start-btn');
-const gif = document.getElementById('achievement-gif'); 
-const gameBox = document.getElementById('game-box');
-const statusText = document.getElementById('status-text');
-const traveler = document.getElementById('traveler');
-const trackContainer = document.querySelector('.track-container');
+// Esperamos a que el HTML cargue completamente antes de ejecutar
+document.addEventListener('DOMContentLoaded', () => {
 
-// --- 1. INICIO ---
-startBtn.addEventListener('click', () => {
-    sound.volume = 0; 
-    sound.play().then(() => {
-        sound.pause();
-        sound.currentTime = 0;
-    }).catch(e => console.log("Error unlock:", e));
-    startScreen.classList.add('hidden');
-    // Mover monito al inicio
-    updateMonkyPosition(0);
-});
-
-// --- 2. MOVIMIENTO MATEMÁTICO (CURVAS) ---
-// Usamos listeners directos para máxima respuesta
-slider.addEventListener('input', checkGameLoop);
-slider.addEventListener('touchend', slideBack);
-slider.addEventListener('mouseup', slideBack);
-
-function checkGameLoop() {
-    if (hasWon) { 
-        slider.value = 100; 
-        return; 
-    }
-
-    let val = parseInt(slider.value);
+    // --- CONFIGURACIÓN ---
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
     
-    // Mover visualmente
-    updateMonkyPosition(val);
-
-    // Detectar Bombas (Zonas: 20-30, 45-55, 70-80)
-    let hitBomb = (val > 20 && val < 30) || (val > 45 && val < 55) || (val > 70 && val < 80);
-
-    if (hitBomb) {
-        gameBox.classList.add('shake'); 
-        statusText.innerText = "¡BOMBA! 💥 ¡Cuidado!";
-        statusText.style.color = "red";
-    } else {
-        gameBox.classList.remove('shake');
-        statusText.innerText = "¡Sigue el camino!";
-        statusText.style.color = "#ad1457";
-    }
-
-    updateKmText(val);
-
-    // Ganar
-    if (val >= 99) {
-        winGame();
-    }
-}
-
-// FÓRMULA MATEMÁTICA DE LA ONDA (Seno)
-function updateMonkyPosition(percent) {
-    // Ancho total disponible (restamos el ancho del monito aprox 70px)
-    let maxW = trackContainer.offsetWidth - 60; 
-    let maxH = trackContainer.offsetHeight;
+    // Imágenes
+    const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
+    const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png"; 
+    const imgObstacle = new Image(); imgObstacle.src = "fotos/obstaculo.png"; 
     
-    // Posición X: Lineal según el slider
-    let posX = (percent / 100) * maxW;
-    
-    // Posición Y: Onda Senoidal (Math.sin)
-    // Multiplicamos percent por un factor para hacer 2 ondas completas
-    // 40 es la amplitud (qué tan alto/bajo va)
-    let wave = Math.sin((percent / 100) * Math.PI * 4); 
-    let posY = (maxH / 2) - 35 + (wave * 35); 
+    // Elementos del DOM
+    const startScreen = document.getElementById("startScreen");
+    const gameOverScreen = document.getElementById("gameOverScreen");
+    const finalScreen = document.getElementById("finalScreen");
+    const btnStart = document.getElementById("btnStart");
+    const btnRetry = document.getElementById("btnRetry");
+    const gifLogro = document.getElementById("achievement-gif");
 
-    traveler.style.left = posX + 'px';
-    traveler.style.top = posY + 'px';
-}
+    // Sonidos
+    const jumpSnd = document.getElementById("jumpSound");
+    const scoreSnd = document.getElementById("scoreSound");
+    const winSnd = document.getElementById("winSound");
 
-// --- DIFICULTAD (RETROCESO) ---
-function slideBack() {
-    if (hasWon) return;
-    let currentValue = parseInt(slider.value);
-    
-    if (currentValue < 99) {
-        let hitBomb = (currentValue > 20 && currentValue < 30) || 
-                      (currentValue > 45 && currentValue < 55) || 
-                      (currentValue > 70 && currentValue < 80);
+    // Variables de Juego
+    let frames = 0;
+    let score = 0;
+    let gameLoopId;
+    let gameState = 'START'; 
+    const WIN_SCORE = 10; 
+
+    // --- OBJETOS ---
+    const monky = {
+        x: 50, y: 250, width: 50, height: 50,
+        speed: 0, gravity: 0.25, jump: 4.6,
         
-        let speed = hitBomb ? 5 : 15; 
-        let pushBack = hitBomb ? 4 : 1; 
-
-        let interval = setInterval(() => {
-            if (hasWon) { clearInterval(interval); return; }
-            
-            let newVal = parseInt(slider.value) - pushBack;
-            slider.value = newVal;
-            
-            updateMonkyPosition(newVal); 
-            updateKmText(newVal);
-            
-            if (slider.value <= 0) { 
-                clearInterval(interval); 
-                gameBox.classList.remove('shake'); 
-                statusText.innerText = "¡Vamos de nuevo!";
+        draw: function() {
+            if(imgPlayer.complete && imgPlayer.naturalHeight !== 0) {
+                ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height);
+            } else {
+                ctx.fillStyle = "#d81b60"; ctx.fillRect(this.x, this.y, this.width, this.height);
             }
-        }, speed);
+        },
+        update: function() {
+            if (gameState === 'PLAYING') {
+                this.speed += this.gravity;
+                this.y += this.speed;
+                // Colisión Suelo/Techo
+                if(this.y + this.height >= canvas.height || this.y <= 0) gameOver();
+            }
+        },
+        flap: function() {
+            if (gameState === 'PLAYING') {
+                this.speed = -this.jump;
+                jumpSnd.currentTime = 0; 
+                jumpSnd.play().catch(() => {});
+            }
+        }
+    };
+
+    const pipes = {
+        items: [], dx: 3, gap: 160,
+        
+        update: function() {
+            if (gameState !== 'PLAYING') return;
+
+            if(frames % 100 === 0) {
+                let yPos = Math.floor(Math.random() * (canvas.height - this.gap - 100)) - 100;
+                this.items.push({ x: canvas.width, y: yPos });
+            }
+
+            for(let i = 0; i < this.items.length; i++) {
+                let p = this.items[i];
+                p.x -= this.dx;
+
+                let pipeW = 50; let pipeH = 300; 
+
+                // Colisiones
+                if (monky.x < p.x + pipeW && monky.x + monky.width > p.x &&
+                    (monky.y < p.y + pipeH || monky.y + monky.height > p.y + pipeH + this.gap)) {
+                    gameOver();
+                }
+
+                // Puntos
+                if(p.x + pipeW <= 0) {
+                    this.items.shift();
+                    score++;
+                    scoreSnd.currentTime = 0; scoreSnd.play().catch(()=>{});
+                    if(score >= WIN_SCORE) startCinematicEnding();
+                }
+            }
+        },
+        draw: function() {
+            for(let i = 0; i < this.items.length; i++) {
+                let p = this.items[i];
+                let pipeH = 300;
+                
+                if(imgObstacle.complete && imgObstacle.naturalHeight !== 0) {
+                    ctx.drawImage(imgObstacle, p.x, p.y, 50, pipeH);
+                    ctx.drawImage(imgObstacle, p.x, p.y + pipeH + this.gap, 50, pipeH);
+                } else {
+                    ctx.fillStyle = "#555";
+                    ctx.fillRect(p.x, p.y, 50, pipeH);
+                    ctx.fillRect(p.x, p.y + pipeH + this.gap, 50, pipeH);
+                }
+            }
+        },
+        reset: function() { this.items = []; }
+    };
+
+    // --- GAME LOOP ---
+    function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (gameState === 'PLAYING') {
+            monky.draw(); monky.update();
+            pipes.draw(); pipes.update();
+            drawScore();
+            frames++;
+            gameLoopId = requestAnimationFrame(loop);
+        } 
+        else if (gameState === 'MOVING_TO_HUG') {
+            animateEnding();
+            gameLoopId = requestAnimationFrame(loop);
+        }
     }
-}
 
-function updateKmText(val) {
-    const kmText = document.getElementById('kmText');
-    let maxKm = 3000;
-    let currentKm = Math.round(maxKm - (maxKm * (val / 100)));
-    if (!hasWon) { kmText.innerText = currentKm + " km restantes"; }
-}
+    function drawScore() {
+        ctx.fillStyle = "#FFF"; ctx.strokeStyle = "#880e4f";
+        ctx.lineWidth = 3; ctx.font = "40px Fredoka";
+        ctx.strokeText(score, canvas.width/2 - 10, 60);
+        ctx.fillText(score, canvas.width/2 - 10, 60);
+    }
 
-// --- VICTORIA ---
-function winGame() {
-    hasWon = true; 
+    // --- FUNCIONES CONTROL ---
+    function iniciarJuego() {
+        startScreen.classList.add("hidden");
+        gameState = 'PLAYING';
+        score = 0; frames = 0;
+        monky.y = 250; monky.speed = 0;
+        pipes.reset();
+        
+        // Desbloqueo audio iOS
+        winSnd.volume = 0; 
+        winSnd.play().then(() => {
+            winSnd.pause(); winSnd.currentTime = 0;
+        }).catch(() => {});
+
+        loop();
+    }
+
+    function reiniciarJuego() {
+        gameOverScreen.classList.add("hidden");
+        gameState = 'PLAYING';
+        score = 0; frames = 0;
+        monky.y = 250; monky.speed = 0;
+        pipes.reset();
+        loop();
+    }
+
+    function gameOver() {
+        gameState = 'END';
+        cancelAnimationFrame(gameLoopId);
+        gameOverScreen.classList.remove("hidden");
+    }
+
+    // --- FINAL ---
+    let goalX = 250; let goalY = 250;
     
-    gameBox.classList.remove('shake');
-    statusText.innerText = "¡Llegaste! 🎉";
+    function startCinematicEnding() {
+        gameState = 'MOVING_TO_HUG';
+        pipes.items = []; 
+    }
 
-    // Sonido
-    sound.volume = 1.0; 
-    sound.currentTime = 0;
-    sound.play().catch(e => console.log("Error final:", e));
+    function animateEnding() {
+        if(imgGoal.complete) ctx.drawImage(imgGoal, goalX, goalY, 60, 60);
+        
+        let dx = goalX - monky.x;
+        let dy = goalY - monky.y;
+        monky.x += dx * 0.05; monky.y += dy * 0.05;
+        monky.draw();
 
-    // Gif Logro
-    gif.style.display = 'block';
-    const currentSrc = gif.src;
-    gif.src = ''; 
-    gif.src = currentSrc;
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) triggerFinalHug();
+    }
 
-    // Visuales
-    const kmText = document.getElementById('kmText');
-    const goalMonky = document.getElementById('goalMonky');
-    const hugSticker = document.getElementById('hugSticker');
-    const letter = document.getElementById('hidden-letter');
-    const body = document.querySelector('body');
+    function triggerFinalHug() {
+        gameState = 'END';
+        cancelAnimationFrame(gameLoopId);
+        finalScreen.classList.remove("hidden");
+        
+        winSnd.volume = 1.0; winSnd.play().catch(()=>{});
+        
+        gifLogro.style.display = 'block';
+        let src = gifLogro.src; gifLogro.src = ''; gifLogro.src = src;
 
-    kmText.innerText = "¡Juntas! ❤️";
-    body.style.backgroundColor = "#ffcdd2"; 
-    
-    // Ocultar monito viajero y meta
-    traveler.style.opacity = '0'; 
-    goalMonky.classList.add('opacity-0');
-    hugSticker.classList.add('show');
-    
-    slider.disabled = true;
-
-    if (!letter.classList.contains('show')) {
-        letter.classList.add('show');
-        var defaults = { spread: 360, ticks: 50, gravity: 0, decay: 0.94, startVelocity: 30, colors: ['#d81b60', '#f06292', '#ffffff'] };
+        var defaults = { spread: 360, ticks: 100, gravity: 0, decay: 0.94, startVelocity: 30 };
         confetti({ ...defaults, particleCount: 100, scalar: 1.2, shapes: ['heart'] });
+
+        setTimeout(() => { gifLogro.style.display = 'none'; }, 9950);
     }
 
-    setTimeout(() => { 
-        gif.style.display = 'none'; 
-    }, 9950);
-}
+    // --- LISTENERS BOTONES ---
+    btnStart.addEventListener('click', iniciarJuego);
+    btnRetry.addEventListener('click', reiniciarJuego);
+
+    // --- CONTROLES TOQUE ---
+    window.addEventListener("touchstart", (e) => { 
+        if(e.target.tagName !== 'BUTTON') { e.preventDefault(); monky.flap(); }
+    }, {passive: false});
+    
+    window.addEventListener("click", (e) => {
+        if(e.target.tagName !== 'BUTTON') monky.flap();
+    });
+});
