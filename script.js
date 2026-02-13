@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png"; 
     const imgObstacle = new Image(); imgObstacle.src = "fotos/obstaculo.png"; 
     
-    // Elementos del DOM
+    // Elementos DOM
     const startScreen = document.getElementById("startScreen");
     const gameOverScreen = document.getElementById("gameOverScreen");
     const finalScreen = document.getElementById("finalScreen");
@@ -22,23 +22,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreSnd = document.getElementById("scoreSound");
     const winSnd = document.getElementById("winSound");
 
-    // Variables de Juego
+    // Variables
     let frames = 0;
     let score = 0;
     let gameLoopId;
     let gameState = 'START'; 
-    
-    // --- 🟢 CAMBIO 1: META A 7 PUNTOS ---
     const WIN_SCORE = 7; 
 
     // --- OBJETOS ---
     const monky = {
         x: 50, y: 250, width: 50, height: 50,
-        
-        // Físicas "Easy Mode"
-        speed: 0, 
-        gravity: 0.18, 
-        jump: 3.8,     
+        speed: 0, gravity: 0.18, jump: 3.8,
         
         draw: function() {
             if(imgPlayer.complete && imgPlayer.naturalHeight !== 0) {
@@ -57,16 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
         flap: function() {
             if (gameState === 'PLAYING') {
                 this.speed = -this.jump;
-                jumpSnd.currentTime = 0; 
-                jumpSnd.play().catch(() => {});
+                jumpSnd.currentTime = 0; jumpSnd.play().catch(()=>{});
             }
         }
     };
 
     const pipes = {
-        items: [], 
-        dx: 2.5, 
-        gap: 170, 
+        items: [], dx: 2.5, gap: 170,
         
         update: function() {
             if (gameState !== 'PLAYING') return;
@@ -79,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
             for(let i = 0; i < this.items.length; i++) {
                 let p = this.items[i];
                 p.x -= this.dx;
-
                 let pipeW = 50; let pipeH = 300; 
 
                 // Colisiones
@@ -102,24 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 let p = this.items[i];
                 let pipeH = 300;
                 
-                // --- 🟢 CAMBIO 2: ESTILO DE BARRAS MEJORADO ---
                 if(imgObstacle.complete && imgObstacle.naturalHeight !== 0) {
-                    // Si tienes imagen, la dibujamos normal
                     ctx.drawImage(imgObstacle, p.x, p.y, 50, pipeH);
                     ctx.drawImage(imgObstacle, p.x, p.y + pipeH + this.gap, 50, pipeH);
                 } else {
-                    // Si NO hay imagen (o falla), dibujamos barras bonitas rosas
-                    ctx.fillStyle = "#f8bbd0"; // Rosa claro (Relleno)
-                    ctx.strokeStyle = "#880e4f"; // Borde oscuro
-                    ctx.lineWidth = 2;
-
-                    // Tubo Arriba
-                    ctx.fillRect(p.x, p.y, 50, pipeH);
-                    ctx.strokeRect(p.x, p.y, 50, pipeH);
-                    
-                    // Tubo Abajo
-                    ctx.fillRect(p.x, p.y + pipeH + this.gap, 50, pipeH);
-                    ctx.strokeRect(p.x, p.y + pipeH + this.gap, 50, pipeH);
+                    ctx.fillStyle = "#f8bbd0"; ctx.strokeStyle = "#880e4f"; ctx.lineWidth = 2;
+                    ctx.fillRect(p.x, p.y, 50, pipeH); ctx.strokeRect(p.x, p.y, 50, pipeH);
+                    ctx.fillRect(p.x, p.y + pipeH + this.gap, 50, pipeH); ctx.strokeRect(p.x, p.y + pipeH + this.gap, 50, pipeH);
                 }
             }
         },
@@ -150,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText(score, canvas.width/2 - 10, 60);
     }
 
-    // --- FUNCIONES CONTROL ---
+    // --- CONTROLES ---
     function iniciarJuego() {
         startScreen.classList.add("hidden");
         gameState = 'PLAYING';
@@ -181,40 +160,35 @@ document.addEventListener('DOMContentLoaded', () => {
         gameOverScreen.classList.remove("hidden");
     }
 
-    // --- 🟢 CAMBIO 3: FINAL CINEMÁTICO LENTO ---
+    // --- FINAL CINEMÁTICO ---
     let goalX = 250; let goalY = 250;
     
     function startCinematicEnding() {
         gameState = 'MOVING_TO_HUG';
-        pipes.items = []; // Limpiamos obstáculos
-        
-        // Colocamos a la Monky Meta un poco lejos para que el viaje dure más
-        goalX = canvas.width - 70; 
-        goalY = canvas.height / 2 - 30; // Centrada verticalmente
+        pipes.items = []; 
+        goalX = canvas.width - 70;
+        goalY = canvas.height / 2 - 30;
     }
 
     function animateEnding() {
-        // Dibujar a Sofi (Meta)
         if(imgGoal.complete) ctx.drawImage(imgGoal, goalX, goalY, 60, 60);
         
-        // Calcular distancia
         let dx = goalX - monky.x;
         let dy = goalY - monky.y;
         
-        // MOVIMIENTO SUAVE Y LENTO
-        // Antes era 0.05 (rápido). Ahora es 0.015 (muy lento y suave)
-        monky.x += dx * 0.015; 
-        monky.y += dy * 0.015;
+        monky.x += dx * 0.008; 
+        monky.y += dy * 0.008;
         
         monky.draw();
 
-        // Detectar si llegaron (cuando están muy cerca)
         if (Math.abs(dx) < 5 && Math.abs(dy) < 5) triggerFinalHug();
     }
 
     function triggerFinalHug() {
         gameState = 'END';
         cancelAnimationFrame(gameLoopId);
+
+        // INSTANTÁNEO
         finalScreen.classList.remove("hidden");
         
         winSnd.volume = 1.0; winSnd.play().catch(()=>{});
