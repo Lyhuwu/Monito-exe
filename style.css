@@ -1,73 +1,60 @@
-/* --- NORMALIZACIÓN DEL VIEWPORT --- */
+/* --- CONFIGURACIÓN BASE --- */
 html, body {
     margin: 0; padding: 0;
     width: 100%; height: 100%;
-    background-color: #222; /* Fondo de seguridad */
-    overflow: hidden; /* Prevenir scroll */
-    touch-action: none; user-select: none;
+    background-color: #222;
+    overflow: hidden; 
     font-family: 'Fredoka', sans-serif;
+    touch-action: none; user-select: none;
 }
 
-/* --- LIENZO DEL JUEGO (FULLSCREEN REAL) --- */
+/* --- LIENZO --- */
 canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    /* Fondo del juego */
+    display: block; width: 100%; height: 100%;
     background: linear-gradient(to bottom, #81d4fa, #e1f5fe);
     background-image: url('fotos/fondo.gif');
     background-size: cover; background-position: center; background-repeat: no-repeat;
-    /* IMPORTANTE: Eliminamos bordes para que coincida con las capas superiores */
-    border: none; box-shadow: none; 
+    border: none;
 }
 
-/* --- SISTEMA DE CAPAS (OVERLAYS) --- */
+/* --- CAPAS DE PANTALLA COMPLETA (Overlays) --- */
 .overlay {
-    position: fixed; /* Coordenadas absolutas a la ventana */
-    top: 0; left: 0; width: 100%; height: 100%;
-    display: flex; flex-direction: column; 
-    justify-content: center; align-items: center;
-    z-index: 20;
-    /* Optimizamos para la GPU */
-    will-change: visibility; 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(252, 228, 236, 0.98); 
+    z-index: 50;
+    
+    /* 🛠️ ESTO ES LO QUE CENTRA TODO 🛠️ */
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; /* Centrado Vertical */
+    align-items: center;     /* Centrado Horizontal */
+    text-align: center;
+    
+    transition: opacity 0.3s;
 }
 
-/* Fondos para Inicio y Game Over */
-#startScreen, #gameOverScreen {
-     background: rgba(252, 228, 236, 0.98);
+/* Caja interna para asegurar márgenes */
+.center-box {
+    max-width: 90%;
+    display: flex; flex-direction: column; align-items: center;
 }
 
-/* Configuración específica para el Final (Transparente e Instantáneo) */
-.final-overlay {
-    background: transparent !important;
-    pointer-events: none; /* Permitir ver el juego debajo sin interactuar */
-}
-
-/* --- CLASES DE UTILIDAD DE VISIBILIDAD (CERO LATENCIA) --- */
-/* Usamos visibility en vez de display para mantener el layout calculado */
+/* Clases de Visibilidad */
 .invisible {
-    visibility: hidden;
-    opacity: 0;
+    visibility: hidden; opacity: 0;
     transition: visibility 0s linear 0s, opacity 0.3s;
 }
-
-/* Clase para mostrar elementos instantáneamente */
 .show-instant {
-    visibility: visible !important;
-    opacity: 1 !important;
+    visibility: visible !important; opacity: 1 !important;
     transition: none !important;
 }
 
-
-/* --- ELEMENTOS DE UI --- */
+/* Estilos Específicos */
+.final-overlay { background: transparent !important; pointer-events: none; }
 .hug-container { 
-    position: relative; text-align: center;
-    animation: none; /* Sin animación de entrada */
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1.0));
-    transform: translateZ(0); /* Forzar aceleración de hardware */
+    position: relative; animation: none; 
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1.0)); 
 }
-
-/* Capa del Logro */
 #achievement-layer {
     position: fixed; top: 20px; width: 100%;
     display: flex; justify-content: center; z-index: 9999;
@@ -75,23 +62,25 @@ canvas {
 }
 #achievement-gif { width: 350px; max-width: 90%; }
 
+/* Textos y Botones */
+h1 { color: #880e4f; font-size: 2.2rem; margin: 0 0 15px 0; }
+p { color: #d81b60; font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; line-height: 1.4; }
 
-/* Estilos Generales */
-h1 { color: #880e4f; font-size: 2rem; margin: 0 0 10px 0; text-align: center; }
-p { color: #d81b60; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; text-align: center; padding: 0 20px;}
 button {
     background: #d81b60; color: white; border: none;
-    padding: 20px 50px; font-size: 1.5rem; border-radius: 50px;
+    padding: 18px 50px; font-size: 1.5rem; border-radius: 50px;
     cursor: pointer; box-shadow: 0 6px 0 #ad1457;
-    font-family: 'Fredoka', sans-serif; font-weight: bold; font-size: 1.2rem;
-    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    font-family: 'Fredoka', sans-serif; font-weight: bold;
+    touch-action: manipulation;
 }
 button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
-.start-img { width: 150px; border-radius: 15px; margin-bottom: 20px; }
+
+/* Imágenes */
+.start-img { width: 160px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 .hug-sticker { width: 280px; height: auto; margin-bottom: 15px; }
 .letter-box {
     background: white; padding: 20px; border-radius: 20px; border: 3px solid #f8bbd0;
-    width: 85%; max-width: 400px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 85%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 .letter-box h2 { color: #d81b60; margin: 0 0 10px 0; font-size: 1.5rem; }
-.letter-box p { font-size: 1.1rem; color: #555; margin: 0; line-height: 1.4; }
+.letter-box p { font-size: 1.1rem; color: #555; margin: 0; }
