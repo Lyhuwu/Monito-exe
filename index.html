@@ -25,10 +25,14 @@
 
     <div id="game-box" class="game-container">
         <h1>Acorta la distancia 🌍</h1>
-        <p class="subtitle" id="status-text">¡Cuidado con las bombas! 💣</p>
+        <p class="subtitle" id="status-text">¡Sigue el camino sin chocar! 💣</p>
 
         <div class="track-container">
             
+            <svg class="zigzag-svg" width="100%" height="100%" viewBox="0 0 350 100" preserveAspectRatio="none">
+                <path id="route-path" d="M10,50 Q90,0 175,50 T340,50" fill="none" stroke="#f8bbd0" stroke-width="4" stroke-dasharray="10,5" />
+            </svg>
+
             <div class="obstacle bomb-1">💣</div>
             <div class="obstacle bomb-2">💣</div>
             <div class="obstacle bomb-3">💣</div>
@@ -40,8 +44,12 @@
             <div class="hug-sticker" id="hugSticker">
                 <img src="fotos/monkys-abrazados.png" alt="Abrazo" class="hug-img">
             </div>
+
+            <div id="traveler" class="traveler-monky">
+                <img src="fotos/monky-viajero.png" alt="Yo">
+            </div>
             
-            <input type="range" min="0" max="100" value="0" class="slider" id="loveSlider" oninput="checkObstacles()">
+            <input type="range" min="0" max="100" value="0" class="slider" id="loveSlider" oninput="checkGameLoop()">
             
             <div class="km-counter" id="kmText">3000 km</div>
         </div>
@@ -49,9 +57,8 @@
         <div id="hidden-letter" class="letter-box">
             <h2>¡Por fin juntas! 🏡</h2>
             <p>
-                No importan los kilómetros, ni las horas de diferencia, ni las pantallas.<br><br>
+                Recorrí cada curva, esquivé cada bomba y crucé el mundo entero solo para esto.<br><br>
                 Mi lugar favorito en el mundo es justo ahí: <b>a tu lado.</b><br><br>
-                Pronto esta distancia será de 0 centímetros para siempre.<br><br>
                 Te amo con todo mi corazón de Monky.
             </p>
             <div class="heart-icon">💖</div>
