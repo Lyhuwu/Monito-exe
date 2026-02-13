@@ -159,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState === 'PLAYING') monky.flap();
     });
 });
+}
 // --- EVENTOS ---
 document.addEventListener('DOMContentLoaded', () => {
     // ... (tu código existente de canvas) ...
