@@ -80,16 +80,17 @@ button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
     will-change: transform, opacity;
 }
 
-/* 🟢 NUEVA ANIMACIÓN ÉPICA (ESTILO VIDEOJUEGO) */
-@keyframes superPopEpic {
-    0% { opacity: 0; transform: scale(0) rotate(-20deg); }
-    50% { opacity: 1; transform: scale(1.3) rotate(5deg); }
-    70% { transform: scale(0.9) rotate(-3deg); }
-    85% { transform: scale(1.05) rotate(2deg); }
-    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+/* 🟢 NUEVA ANIMACIÓN: LATIDO DE CORAZÓN (Más suave y tierna) */
+@keyframes heartbeatEntrance {
+    0% { opacity: 0; transform: scale(0.5); } /* Empieza pequeño */
+    40% { opacity: 1; transform: scale(1.1); } /* Aparece y crece un poco */
+    60% { transform: scale(0.95); } /* Primer latido (se encoge) */
+    80% { transform: scale(1.05); } /* Segundo latido (se expande) */
+    100% { opacity: 1; transform: scale(1); } /* Se queda quieto */
 }
 
-.epic-sticker-anim {
+.sticker-heartbeat {
     opacity: 1 !important;
-    animation: superPopEpic 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    /* Más lenta (1.2s) y con ritmo suave (ease-in-out) */
+    animation: heartbeatEntrance 1.2s ease-in-out forwards !important;
 }
