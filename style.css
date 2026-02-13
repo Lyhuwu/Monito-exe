@@ -34,83 +34,96 @@ body {
 @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 .hidden { opacity: 0; pointer-events: none; }
 
-/* --- GIF DEL LOGRO (MÁS GRANDE Y ARRIBA) --- */
+/* --- GIF DEL LOGRO --- */
 #achievement-gif {
-    position: fixed;
-    /* AJUSTE: top negativo o 0 para pegarlo arriba */
-    top: -10px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    z-index: 9999;
-    
-    /* AJUSTE: Más grande (antes era 320px) */
-    width: 380px; 
-    max-width: 95%; /* Para que no se salga en cels pequeños */
-    height: auto;
-    
+    position: fixed; top: -10px; left: 50%; transform: translateX(-50%); z-index: 9999;
+    width: 380px; max-width: 95%; height: auto;
     display: none; pointer-events: none;
 }
 
 /* --- JUEGO --- */
-.game-container { width: 90%; max-width: 450px; padding: 20px 0; transition: transform 0.1s; }
+.game-container { width: 95%; max-width: 450px; padding: 20px 0; transition: transform 0.1s; position: relative;}
 
-/* Animación de EXPLOSIÓN (Temblor más fuerte) */
+/* Animación de EXPLOSIÓN */
 .shake { animation: shake 0.3s infinite; }
 @keyframes shake {
-  0% { transform: translate(2px, 2px) rotate(0deg); }
-  25% { transform: translate(-2px, -3px) rotate(-2deg); }
-  50% { transform: translate(3px, 1px) rotate(2deg); }
-  75% { transform: translate(-3px, 2px) rotate(-1deg); }
-  100% { transform: translate(1px, -2px) rotate(1deg); }
+  0% { transform: translate(2px, 2px); }
+  25% { transform: translate(-2px, -3px); }
+  50% { transform: translate(3px, 1px); }
+  75% { transform: translate(-3px, 2px); }
+  100% { transform: translate(1px, -2px); }
 }
 
 h1 { color: #880e4f; margin-bottom: 5px; font-size: 2rem; }
 .subtitle { color: #ad1457; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; }
 
 .track-container {
-    position: relative; width: 100%; height: 120px;
-    margin-top: 60px; margin-bottom: 20px; 
-    display: flex; align-items: center; justify-content: center;
+    position: relative; width: 100%; 
+    height: 150px; /* Más alto para que quepan las curvas */
+    margin-top: 40px; margin-bottom: 20px; 
 }
 
-/* --- OBSTÁCULOS (BOMBAS) --- */
+/* EL DIBUJO DEL CAMINO SVG */
+.zigzag-svg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1; /* Al fondo */
+    overflow: visible;
+}
+
+/* OBSTÁCULOS (BOMBAS) posicionadas en las curvas */
 .obstacle {
-    position: absolute; top: 15px; font-size: 1.8rem; z-index: 5; 
+    position: absolute; font-size: 1.8rem; z-index: 5; 
     animation: pulseBomb 1s infinite;
 }
 @keyframes pulseBomb { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
-/* Posiciones de las bombas */
-.bomb-1 { left: 20%; } 
-.bomb-2 { left: 50%; }
-.bomb-3 { left: 80%; }
+/* Coordenadas aproximadas para caer en la línea curva */
+.bomb-1 { top: 10%; left: 22%; } 
+.bomb-2 { top: 60%; left: 50%; }
+.bomb-3 { top: 10%; left: 78%; }
 
-.goal { position: absolute; right: -10px; top: 0px; z-index: 10; transition: opacity 0.3s; }
-.goal-img { width: 80px; height: auto; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1)); }
+.goal { position: absolute; right: 0px; top: 20px; z-index: 10; transition: opacity 0.3s; }
+.goal-img { width: 70px; height: auto; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1)); }
+
 .hug-sticker {
-    position: absolute; right: -10px; top: -30px; z-index: 20;
+    position: absolute; right: 0px; top: -10px; z-index: 20;
     opacity: 0; transform: scale(0.5);
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none;
 }
-.hug-img { width: 150px; height: auto; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
+.hug-img { width: 140px; height: auto; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
 .hug-sticker.show { opacity: 1; transform: scale(1); }
 .opacity-0 { opacity: 0; }
-.km-counter { position: absolute; bottom: -25px; width: 100%; font-weight: bold; color: #880e4f; opacity: 0.7; }
+.km-counter { position: absolute; bottom: -30px; width: 100%; font-weight: bold; color: #880e4f; opacity: 0.7; }
 
+/* --- EL MONKY QUE SE MUEVE --- */
+.traveler-monky {
+    position: absolute;
+    width: 80px; height: 80px;
+    z-index: 8;
+    /* Se moverá con JS, iniciamos fuera */
+    top: 20px; left: 0;
+    pointer-events: none; /* Para que no estorbe al touch */
+    transition: transform 0.1s; /* Suavizar giro */
+}
+.traveler-monky img { width: 100%; height: 100%; object-fit: contain; }
+
+/* --- SLIDER INVISIBLE (EL TRUCO) --- */
 .slider {
-    -webkit-appearance: none; width: 100%; height: 15px;
-    background: #fff; border-radius: 10px; outline: none;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); position: relative; z-index: 6; 
+    -webkit-appearance: none; 
+    width: 100%; height: 100%; /* Cubre todo el área */
+    position: absolute; top: 0; left: 0;
+    background: transparent; /* Invisible */
+    outline: none;
+    z-index: 20; /* Encima de todo para detectar el dedo */
+    cursor: grab;
 }
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none; appearance: none;
-    width: 85px; height: 85px; background: transparent; border: none; cursor: grab;
-    background-image: url('fotos/monky-viajero.png'); 
-    background-size: contain; background-repeat: no-repeat; background-position: center;
-    transform: translateY(-5px); transition: all 0.2s;
+    width: 50px; height: 100px; /* Grande para que sea fácil tocar */
+    background: transparent; 
+    border: none;
 }
-.slider::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.1) translateY(-5px); }
-.slider.hide-thumb::-webkit-slider-thumb { opacity: 0; transform: scale(0); }
+.slider:active { cursor: grabbing; }
 
 .letter-box {
     background: white; padding: 25px; border-radius: 20px;
