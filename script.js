@@ -1,32 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. CONFIGURACIÓN INICIAL ---
+    // --- 1. CONFIGURACIÓN DE PANTALLA ---
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     
-    // Ajuste de Pantalla Completa (Responsive)
+    // Ajuste para que ocupe toda la pantalla del celular sin bordes
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
     window.addEventListener('resize', resizeCanvas);
-    resizeCanvas(); // Ajustar al cargar
+    resizeCanvas(); 
 
-    // --- 2. RECURSOS (Imágenes y Sonidos) ---
+    // --- 2. RECURSOS (Imágenes y Audio) ---
+    // Nota: Ya no usamos 'obstaculo.png' porque dibujaremos las barras rosadas
     const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
     const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png"; 
-    const imgObstacle = new Image(); imgObstacle.src = "fotos/obstaculo.png"; 
     
-    // Referencias al HTML
+    // Elementos del HTML
     const startScreen = document.getElementById("startScreen");
     const gameOverScreen = document.getElementById("gameOverScreen");
     const finalScreen = document.getElementById("finalScreen");
     const achievementLayer = document.getElementById("achievement-layer");
     const achievementGif = document.getElementById("achievement-gif");
-    const btnStart = document.getElementById("btnStart");
-    const btnRetry = document.getElementById("btnRetry");
-
-    // Audio
+    
+    // Sonidos
     const jumpSnd = document.getElementById("jumpSound");
     const scoreSnd = document.getElementById("scoreSound");
     const winSnd = document.getElementById("winSound");
@@ -38,23 +36,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameState = 'START'; 
     const WIN_SCORE = 7; // Meta de puntos
 
-    // --- 3. OBJETOS DEL JUEGO ---
-    
-    // EL MONKY (Jugador)
+    // --- 3. EL JUGADOR (MONKY) ---
     const monky = {
         x: 50, 
         y: canvas.height / 2, 
-        width: 60, 
-        height: 60,
+        width: 60, height: 60,
         speed: 0, 
-        gravity: 0.18, // Cae suave
+        gravity: 0.18, // Gravedad suave
         jump: 4.0,     // Salto controlado
         
         draw: function() {
             if(imgPlayer.complete && imgPlayer.naturalHeight !== 0) {
                 ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height);
             } else {
-                // Cuadro rosa si falla la imagen
                 ctx.fillStyle = "#d81b60"; ctx.fillRect(this.x, this.y, this.width, this.height);
             }
         },
@@ -63,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.speed += this.gravity;
                 this.y += this.speed;
                 
-                // Límites de pantalla (Techo y Suelo)
+                // Techo y Suelo
                 if(this.y + this.height >= canvas.height || this.y <= 0) {
                     gameOver();
                 }
@@ -78,19 +72,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // LOS OBSTÁCULOS (Tuberías)
+    // --- 4. LOS OBSTÁCULOS (BARRAS ROSAS) ---
     const pipes = {
         items: [], 
-        dx: 2.5,     // 🟢 VELOCIDAD: Lenta para que sea fácil
-        gap: 220,    // 🟢 HUECO: Gigante (220px) para pasar sobrado
+        dx: 3,       // Velocidad normal
+        gap: 220,    // 🟢 HUECO GIGANTE (Fácil de pasar)
         
         update: function() {
             if (gameState !== 'PLAYING') return;
 
-            // Generar obstáculos cada cierto tiempo (según ancho de pantalla)
+            // Generar cada 140 frames (bastante espacio entre columnas)
             if(frames % 140 === 0) { 
-                // Calculamos posición aleatoria
-                let yPos = Math.floor(Math.random() * (canvas.height - this.gap - 100)) - 100;
+                // Calculamos altura aleatoria
+                // (El -200 asegura que no queden muy pegadas al borde)
+                let maxPos = canvas.height - this.gap - 100;
+                let minPos = 100;
+                let yPos = Math.floor(Math.random() * (maxPos - minPos)) + minPos;
+                
+                // Guardamos la posición Y donde EMPIEZA el hueco
                 this.items.push({ x: canvas.width, y: yPos });
             }
 
@@ -98,59 +97,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 let p = this.items[i];
                 p.x -= this.dx;
 
-                // 🟢 ANCHO: Delgado (50px)
-                let pipeW = 50; 
-                let pipeH = canvas.height; // Altura segura para cubrir pantalla
-
-                // DETECCIÓN DE COLISIÓN (HITBOX PERMISIVA)
-                // Le sumamos/restamos 10px al monky para que si roza la orilla NO muera.
-                let hitboxMargin = 10;
-
-                if (
-                    (monky.x + hitboxMargin) < p.x + pipeW && 
-                    (monky.x + monky.width - hitboxMargin) > p.x &&
-                    (
-                        (monky.y + hitboxMargin) < p.y + pipeH || 
-                        (monky.y + monky.height - hitboxMargin) > p.y + pipeH + this.gap
-                    )
-                ) {
-                    gameOver();
+                // 🟢 ANCHO: 65px (Gorditas y bonitas)
+                let pipeW = 65; 
+                
+                // COLISIONES
+                // Hitbox con margen de 10px (perdonador)
+                let m = 10; 
+                
+                // Lógica: Si el monky está dentro del ancho de la tubería...
+                if (monky.x + m < p.x + pipeW && monky.x + monky.width - m > p.x) {
+                    // Y si está tocando la barra de arriba (0 a y) O la de abajo (y+gap a fin)
+                    if (monky.y + m < p.y || monky.y + monky.height - m > p.y + this.gap) {
+                        gameOver();
+                    }
                 }
 
-                // CONTADOR DE PUNTOS
+                // PUNTOS
                 if(p.x + pipeW <= 0) {
                     this.items.shift();
                     score++;
                     scoreSnd.currentTime = 0; 
                     scoreSnd.play().catch(()=>{});
                     
-                    // GANAR
                     if(score >= WIN_SCORE) startCinematicEnding();
                 }
             }
         },
+        
         draw: function() {
             for(let i = 0; i < this.items.length; i++) {
                 let p = this.items[i];
-                let pipeH = canvas.height;
-                
-                // Dibujar Imagen o Rectángulo
-                if(imgObstacle.complete && imgObstacle.naturalHeight !== 0) {
-                    ctx.drawImage(imgObstacle, p.x, p.y, 50, pipeH);
-                    ctx.drawImage(imgObstacle, p.x, p.y + pipeH + this.gap, 50, pipeH);
-                } else {
-                    // Estilo por defecto si no hay imagen
-                    ctx.fillStyle = "#f8bbd0"; ctx.strokeStyle = "#880e4f"; ctx.lineWidth = 3;
-                    ctx.fillRect(p.x, p.y, 50, pipeH); ctx.strokeRect(p.x, p.y, 50, pipeH);
-                    ctx.fillRect(p.x, p.y + pipeH + this.gap, 50, pipeH); ctx.strokeRect(p.x, p.y + pipeH + this.gap, 50, pipeH);
-                }
-            }
-        },
-        reset: function() { this.items = []; }
-    };
+                let pipeW = 65;
 
-    // --- 4. BUCLE PRINCIPAL (Game Loop) ---
+                // Configuración de estilo "Barra Rosa"
+                ctx.fillStyle = "#ffcdd2"; // Rosa pastel (Relleno)
+                ctx.strokeStyle = "#880e4f"; // Borde oscuro
+                ctx.lineWidth = 3;
+
+                // 1. TUBO DE ARRIBA (Desde el cielo hasta p.y)
+                ctx.fillRect(p.x, 0, pipeW, p.y);
+                ctx.strokeRect(p.x, -5, pipeW, p.y + 5); // -5 para ocultar borde superior
+
+                // 2. TUBO DE ABAJO (Desde p.y + gap hasta el suelo)
+                let bottomY = p.y + this.gap;
+                let bottomH = canvas.height - bottomY;
+                
+                ctx.fillRect(p.x, bottomY, pipeW, bottomH);
+                ctx.strokeRect(p.x, bottomY, pipeW, bottomH + 5); // +5 para ocultar borde inferior
+            }
+        }
+    },
+    pipes.reset = function() { this.items = []; };
+
+    // --- 5. BUCLE DEL JUEGO ---
     function loop() {
+        // Limpiar pantalla
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (gameState === 'PLAYING') {
@@ -168,14 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function drawScore() {
         ctx.fillStyle = "#FFF"; ctx.strokeStyle = "#880e4f";
-        ctx.lineWidth = 4; ctx.font = "bold 40px Fredoka";
+        ctx.lineWidth = 4; ctx.font = "bold 45px Fredoka";
         ctx.strokeText(score, canvas.width/2 - 15, 80);
         ctx.fillText(score, canvas.width/2 - 15, 80);
     }
 
-    // --- 5. FUNCIONES DE CONTROL ---
+    // --- 6. FUNCIONES DE CONTROL (Globales) ---
     
-    // Función global para el botón de inicio
+    // Iniciar
     window.iniciarJuego = function() {
         startScreen.classList.add("invisible");
         gameState = 'PLAYING';
@@ -183,13 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
         monky.y = canvas.height / 2; monky.speed = 0;
         pipes.reset();
         
-        // Precargar sonido de victoria (hack para iOS)
+        // Hack audio iOS
         winSnd.volume = 0; 
         winSnd.play().then(()=>{ winSnd.pause(); winSnd.currentTime=0; }).catch(()=>{});
         
         loop();
     };
 
+    // Reiniciar
     window.reiniciarJuego = function() {
         gameOverScreen.classList.add("invisible");
         gameState = 'PLAYING';
@@ -205,34 +207,29 @@ document.addEventListener('DOMContentLoaded', () => {
         gameOverScreen.classList.remove("invisible");
     }
 
-    // --- 6. CINEMÁTICA FINAL ---
+    // --- 7. FINAL CINEMÁTICO ---
     let goalX = 0; let goalY = 0;
     
     function startCinematicEnding() {
         gameState = 'MOVING_TO_HUG';
-        pipes.items = []; // Limpiar obstáculos
-        // Meta a la derecha de la pantalla
-        goalX = canvas.width * 0.8;
+        pipes.items = []; // Limpiar pantalla
+        goalX = canvas.width * 0.8; // Meta a la derecha
         goalY = canvas.height / 2 - 35;
     }
 
     function animateEnding() {
-        // Dibujar a Sofi (Meta)
         if(imgGoal.complete) ctx.drawImage(imgGoal, goalX, goalY, 70, 70);
         
-        // Mover a Monky hacia ella suavemente
         let dx = goalX - monky.x;
         let dy = goalY - monky.y;
         
-        monky.x += dx * 0.015; // Velocidad de acercamiento
-        monky.y += dy * 0.015;
+        // Movimiento super lento y romántico (0.008)
+        monky.x += dx * 0.008; 
+        monky.y += dy * 0.008;
         
         monky.draw();
 
-        // Si están muy cerca -> ABRAZO
-        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
-            triggerFinalHug();
-        }
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) triggerFinalHug();
     }
 
     function triggerFinalHug() {
@@ -240,40 +237,29 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelAnimationFrame(gameLoopId);
 
         // 1. Sonido
-        winSnd.volume = 1.0; 
-        winSnd.play().catch(()=>{});
+        winSnd.volume = 1.0; winSnd.play().catch(()=>{});
 
         // 2. Mostrar Pantallas (INSTANTÁNEO)
         finalScreen.classList.add("show-instant");
         achievementLayer.classList.add("show-instant");
         
-        // Reiniciar GIF para que se mueva desde el principio
+        // Reiniciar GIF
         let src = achievementGif.src; 
-        achievementGif.src = ''; 
-        achievementGif.src = src;
+        achievementGif.src = ''; achievementGif.src = src;
 
         // 3. Confeti
-        confetti({ 
-            spread: 360, ticks: 150, gravity: 0, decay: 0.92, 
-            startVelocity: 45, particleCount: 150, scalar: 1.2, shapes: ['heart'] 
-        });
+        confetti({ spread: 360, ticks: 150, gravity: 0, decay: 0.92, startVelocity: 45, particleCount: 150, scalar: 1.2, shapes: ['heart'] });
 
-        // Ocultar logro después de 8 segundos
-        setTimeout(() => { 
-            achievementLayer.classList.remove("show-instant"); 
-        }, 8000);
+        setTimeout(() => { achievementLayer.classList.remove("show-instant"); }, 8000);
     }
 
-    // --- 7. CONTROLES DE ENTRADA (Touch y Click) ---
+    // --- 8. CONTROLES DE TOQUE ---
     const handleInput = (e) => {
-        // Evitar saltar si tocamos un botón
         if(e.target.tagName !== 'BUTTON') {
-            if(e.type === 'touchstart') e.preventDefault(); // Prevenir scroll
+            if(e.type === 'touchstart') e.preventDefault();
             monky.flap();
         }
     };
-    
     window.addEventListener("touchstart", handleInput, {passive: false});
     window.addEventListener("mousedown", handleInput);
-
 });
