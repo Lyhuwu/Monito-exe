@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Monky Fly: El Encuentro 🐒❤️</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
@@ -10,13 +10,15 @@
 </head>
 <body>
 
-    <audio id="jumpSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
-    <audio id="scoreSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
-    <audio id="winSound" src="https://lyhuwu.github.io/Monito-exe/xbox.mp3"></audio>
+    <audio id="jumpSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
+    <audio id="scoreSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+    <audio id="winSound" src="https://lyhuwu.github.io/Monito-exe/xbox.mp3" preload="auto"></audio>
 
-    <img id="achievement-gif" src="fotos/xvox.gif" alt="Logro Xbox">
+    <div id="achievement-layer" class="invisible">
+        <img id="achievement-gif" src="fotos/xvox.gif" alt="Logro Xbox">
+    </div>
 
-    <canvas id="gameCanvas" width="350" height="600"></canvas>
+    <canvas id="gameCanvas"></canvas>
 
     <div id="startScreen" class="overlay">
         <div class="center-content">
@@ -27,13 +29,13 @@
         </div>
     </div>
 
-    <div id="gameOverScreen" class="overlay hidden">
+    <div id="gameOverScreen" class="overlay invisible">
         <h1>¡CHOCASTE! 💥</h1>
         <p>No te rindas, mi amor.<br>¡Inténtalo de nuevo!</p>
         <button id="btnRetry">REINTENTAR ↺</button>
     </div>
 
-    <div id="finalScreen" class="overlay hidden">
+    <div id="finalScreen" class="overlay final-overlay invisible">
         <div class="hug-container">
             <img src="fotos/monkys-abrazados.png" class="hug-sticker" alt="Abrazo Final">
             <div class="letter-box">
