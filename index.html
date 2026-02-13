@@ -48,13 +48,13 @@
             padding: 15px 40px; font-size: 1.5rem; border-radius: 50px;
             cursor: pointer; box-shadow: 0 5px 0 #ad1457;
             font-family: 'Fredoka', sans-serif;
+            transition: transform 0.1s;
         }
         button:active { transform: translateY(4px); box-shadow: 0 1px 0 #ad1457; }
 
         /* --- ESCENA FINAL (EL ABRAZO) --- */
         #final-scene {
-            background: transparent; /* Se ve el juego de fondo al principio */
-            /* Se activará al ganar */
+            background: transparent; 
         }
         
         .hug-container {
@@ -101,20 +101,19 @@
             <h1>MONKY FLY 🐒✈️</h1>
             <img src="fotos/inicio.gif" alt="Intro">
             <p>Esquiva las bombas y vuela hacia mis brazos.<br>Meta: <b>10 Puntos</b></p>
-            <button onclick="startGame()">¡DESPEGAR!</button>
+            <button id="btnStart">¡DESPEGAR!</button>
         </div>
     </div>
 
     <div id="gameOverScreen" class="overlay hidden">
         <h1>¡CUIDADO! 💥</h1>
         <p>El amor es persistente.<br>¡Inténtalo de nuevo!</p>
-        <button onclick="resetGame()">REINTENTAR ↺</button>
+        <button id="btnRetry">REINTENTAR ↺</button>
     </div>
 
     <div id="finalScreen" class="overlay hidden">
         <div class="hug-container">
             <img src="fotos/monkys-abrazados.png" class="hug-sticker" alt="Abrazo Final">
-            
             <div class="letter-box">
                 <h2 style="color:#d81b60; margin:0;">¡Juntas! 🏡</h2>
                 <p style="font-size: 0.9rem; color:#555;">
@@ -133,7 +132,7 @@
         
         // IMÁGENES
         const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
-        const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png"; // Sofi esperándote
+        const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png"; 
         const imgObstacle = new Image(); imgObstacle.src = "fotos/obstaculo.png"; // Bomba
         
         // SONIDOS
@@ -142,11 +141,15 @@
         const winSnd = document.getElementById("winSound");
         const gifLogro = document.getElementById("achievement-gif");
 
+        // BOTONES
+        document.getElementById("btnStart").addEventListener("click", startGame);
+        document.getElementById("btnRetry").addEventListener("click", resetGame);
+
         // VARIABLES DE ESTADO
         let frames = 0;
         let score = 0;
         let gameState = 'START'; // START, PLAYING, MOVING_TO_HUG, END
-        const WIN_SCORE = 10; // Puntos para ganar (Cámbialo si quieres más difícil)
+        const WIN_SCORE = 10; 
 
         // EL MONKY JUGADOR
         const monky = {
@@ -156,7 +159,6 @@
                 if(imgPlayer.complete) ctx.drawImage(imgPlayer, this.x, this.y, this.width, this.height);
             },
             update: function() {
-                // Solo aplica gravedad si estamos jugando
                 if (gameState === 'PLAYING') {
                     this.speed += this.gravity;
                     this.y += this.speed;
@@ -178,44 +180,27 @@
         // OBSTÁCULOS
         const pipes = {
             items: [],
-            dx: 3, // Velocidad
-            gap: 150, // Hueco para pasar
+            dx: 3, 
+            gap: 150, 
             
             update: function() {
                 if (gameState !== 'PLAYING') return;
 
-                // Crear obstáculos
                 if(frames % 100 === 0) {
-                    let maxPos = -100; // Altura máxima
                     let yPos = Math.floor(Math.random() * (canvas.height - this.gap - 100)) - 100;
-                    
-                    this.items.push({
-                        x: canvas.width,
-                        y: yPos // Posición del obstáculo de arriba
-                    });
+                    this.items.push({ x: canvas.width, y: yPos });
                 }
 
                 for(let i = 0; i < this.items.length; i++) {
                     let p = this.items[i];
                     p.x -= this.dx;
 
-                    // Colisiones
-                    // (Simplificado: chocas si tocas el rectángulo de arriba o abajo)
                     let pipeW = 50; 
-                    let pipeH = 300; // Altura del obstáculo imagen
+                    let pipeH = 300; 
                     
-                    // Lógica simple de colisión rectangular
-                    // Tubo Arriba: y hasta y+300
-                    // Tubo Abajo: y+300+gap hasta fin
-                    
-                    // Colisión Arriba
+                    // Colisiones
                     if (monky.x < p.x + pipeW && monky.x + monky.width > p.x &&
-                        monky.y < p.y + pipeH) {
-                        gameOver();
-                    }
-                    // Colisión Abajo
-                    if (monky.x < p.x + pipeW && monky.x + monky.width > p.x &&
-                        monky.y + monky.height > p.y + pipeH + this.gap) {
+                        (monky.y < p.y + pipeH || monky.y + monky.height > p.y + pipeH + this.gap)) {
                         gameOver();
                     }
 
@@ -224,7 +209,6 @@
                         this.items.shift();
                         score++;
                         scoreSnd.play().catch(()=>{});
-                        // GANAR
                         if(score >= WIN_SCORE) startCinematicEnding();
                     }
                 }
@@ -232,13 +216,8 @@
             draw: function() {
                 for(let i = 0; i < this.items.length; i++) {
                     let p = this.items[i];
-                    let pipeH = 300; // Asumimos altura de imagen obstáculo
-                    
-                    // Dibujamos obstáculo arriba
-                    // (Si no tienes imagen voltea, usa un color sólido)
+                    let pipeH = 300; 
                     ctx.drawImage(imgObstacle, p.x, p.y, 50, pipeH);
-                    
-                    // Dibujamos obstáculo abajo
                     ctx.drawImage(imgObstacle, p.x, p.y + pipeH + this.gap, 50, pipeH);
                 }
             },
@@ -247,7 +226,6 @@
 
         // --- BUCLE DEL JUEGO ---
         function loop() {
-            // Limpiar canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (gameState === 'PLAYING') {
@@ -260,7 +238,6 @@
                 requestAnimationFrame(loop);
             } 
             else if (gameState === 'MOVING_TO_HUG') {
-                // Cinemática final
                 animateEnding();
                 requestAnimationFrame(loop);
             }
@@ -277,7 +254,6 @@
         function startGame() {
             document.getElementById("startScreen").classList.add("hidden");
             gameState = 'PLAYING';
-            // Desbloquear audio final en silencio
             winSnd.volume = 0; winSnd.play().then(()=> winSnd.pause());
             loop();
         }
@@ -297,57 +273,47 @@
         }
 
         // --- LA CINEMÁTICA DEL ABRAZO ---
-        let goalX = 250; // Donde aparecerá Sofi
+        let goalX = 250; 
         let goalY = 250;
         
         function startCinematicEnding() {
             gameState = 'MOVING_TO_HUG';
-            pipes.items = []; // Quitar bombas
+            pipes.items = []; 
         }
 
         function animateEnding() {
-            // 1. Dibujar a Sofi (Meta) esperando a la derecha
             ctx.drawImage(imgGoal, goalX, goalY, 60, 60);
 
-            // 2. Mover a tu Monky automáticamente hacia ella
             let dx = goalX - monky.x;
             let dy = goalY - monky.y;
             
-            monky.x += dx * 0.05; // Mover suave (5%)
+            monky.x += dx * 0.05; 
             monky.y += dy * 0.05;
 
-            // Dibujar a tu Monky volando
             monky.draw();
 
-            // 3. DETECTAR EL ABRAZO (Cuando están cerca)
             if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
                 triggerFinalHug();
             }
         }
 
         function triggerFinalHug() {
-            gameState = 'END'; // Detener loop
+            gameState = 'END'; 
             
-            // 1. Mostrar pantalla final con el Sticker
             const finalScreen = document.getElementById("finalScreen");
             finalScreen.classList.remove("hidden");
             
-            // 2. Sonido y Logro
             winSnd.volume = 1.0; winSnd.currentTime = 0; winSnd.play();
             
             gifLogro.style.display = 'block';
-            // Reiniciar gif
             let src = gifLogro.src; gifLogro.src = ''; gifLogro.src = src;
 
-            // 3. Confeti
             var defaults = { spread: 360, ticks: 100, gravity: 0, decay: 0.94, startVelocity: 30 };
             confetti({ ...defaults, particleCount: 100, scalar: 1.2, shapes: ['heart'] });
 
-            // Ocultar gif logro a los 10s
             setTimeout(() => { gifLogro.style.display = 'none'; }, 9950);
         }
 
-        // CONTROLES
         window.addEventListener("click", () => monky.flap());
         window.addEventListener("touchstart", (e) => { e.preventDefault(); monky.flap(); }, {passive: false});
 
