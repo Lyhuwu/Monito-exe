@@ -23,6 +23,7 @@ const monky = {
     }
 };
 
+// BARRAS ROSAS (Configuración Fácil)
 const pipes = {
     items: [], dx: 3, gap: 220,
     update: function() {
@@ -56,10 +57,11 @@ const pipes = {
     reset: function() { this.items = []; }
 };
 
-// RECURSOS & PRECARGA
+// RECURSOS
 const imgPlayer = new Image(); imgPlayer.src = "fotos/monky-viajero.png";
 const imgGoal = new Image();   imgGoal.src = "fotos/monky-meta.png";
-const imgFinal = new Image();  imgFinal.src = "fotos/monkys-abrazados.png"; 
+// La imagen final ya se pre-cargó en HTML, pero esto refuerza
+const imgFinal = new Image();  imgFinal.src = "fotos/monkys-abrazados.png";
 
 // --- FUNCIONES GLOBALES ---
 window.iniciarJuegoGlobal = function() {
@@ -74,31 +76,44 @@ window.reiniciarJuegoGlobal = function() {
 };
 function gameOverGlobal() { gameState = 'END'; cancelAnimationFrame(gameLoopId); document.getElementById("gameOverScreen").classList.remove("invisible"); }
 
-// --- FINAL ---
+// --- FINAL SINCRONIZADO ---
 let goalX = 0; let goalY = 0;
 function startCinematicEnding() { gameState = 'MOVING_TO_HUG'; pipes.items = []; goalX = canvas.width * 0.8; goalY = canvas.height / 2 - 35; }
+
 function animateEnding() {
     if(imgGoal.complete) ctx.drawImage(imgGoal, goalX, goalY, 70, 70);
-    let dx = goalX - monky.x; let dy = goalY - monky.y; monky.x += dx * 0.01; monky.y += dy * 0.01; monky.draw();
+    let dx = goalX - monky.x; let dy = goalY - monky.y;
+    monky.x += dx * 0.01; monky.y += dy * 0.01; monky.draw();
     if (Math.abs(dx) < 5 && Math.abs(dy) < 5) triggerFinalHug();
 }
+
 function triggerFinalHug() {
     gameState = 'END'; cancelAnimationFrame(gameLoopId);
     let winSnd = document.getElementById("winSound"); winSnd.volume = 1.0; winSnd.play().catch(()=>{});
+
+    // ACTIVAR TODO AL MISMO TIEMPO
     document.getElementById("finalScreen").classList.add("show-instant");
     document.getElementById("achievement-layer").classList.add("show-instant");
-    let gif = document.getElementById("achievement-gif"); let src = gif.src; gif.src = ''; gif.src = src;
+    
+    // Resetear GIF
+    let gif = document.getElementById("achievement-gif");
+    let src = gif.src; gif.src = ''; gif.src = src;
+
+    // Confeti
     confetti({ spread: 360, ticks: 150, gravity: 0, decay: 0.92, startVelocity: 45, particleCount: 150, scalar: 1.2, shapes: ['heart'] });
+    
+    // Ocultar logro a los 8s
     setTimeout(() => { document.getElementById("achievement-layer").classList.remove("show-instant"); }, 8000);
 }
 
-// --- LOOP & INIT ---
+// --- INIT ---
 function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (gameState === 'PLAYING') { monky.draw(); monky.update(); pipes.draw(); pipes.update(); drawScore(); frames++; gameLoopId = requestAnimationFrame(loop); }
     else if (gameState === 'MOVING_TO_HUG') { animateEnding(); gameLoopId = requestAnimationFrame(loop); }
 }
 function drawScore() { ctx.fillStyle = "#FFF"; ctx.strokeStyle = "#880e4f"; ctx.lineWidth = 4; ctx.font = "bold 45px Fredoka"; ctx.strokeText(score, canvas.width/2 - 15, 80); ctx.fillText(score, canvas.width/2 - 15, 80); }
+
 document.addEventListener('DOMContentLoaded', () => {
     canvas = document.getElementById("gameCanvas"); ctx = canvas.getContext("2d");
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
