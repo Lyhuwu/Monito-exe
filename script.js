@@ -80,29 +80,28 @@ function triggerFinalHug() {
     const sticker = document.getElementById("stickerAbacho");
     const achievementGif = document.getElementById("achievement-gif");
 
-    // --- ACTIVACIÓN ATÓMICA (MISMO FRAME) ---
-    // Removemos la clase oculta de AMBOS contenedores simultáneamente.
-    finalScreen.classList.remove("hidden-layer");
+    // --- ACTIVACIÓN ---
+    // 1. Mostrar Logro (Método clásico)
     achievementLayer.classList.remove("hidden-layer");
 
-    // --- FORZAR REINICIO DE ANIMACIÓN (REFLOW) ---
+    // 2. Mostrar Pantalla Final (Método Ghost: Solo cambiamos opacidad)
+    // Al añadir .visible, pasa de opacity:0 a opacity:1 instantáneamente
+    finalScreen.classList.add("visible");
+
+    // 3. Sticker Pop
     sticker.classList.remove("animate-pop");
-    void sticker.offsetWidth; // ⚠️ Truco crítico para reiniciar animación
+    void sticker.offsetWidth; 
     sticker.classList.add("animate-pop");
 
-    // --- MULTIMEDIA ---
+    // 4. Multimedia
     document.getElementById("winSound").play().catch(()=>{});
     confetti({ spread: 360, ticks: 150, particleCount: 150, shapes: ['heart'] });
     
-    // Reinicio GIF Xbox
-    const src = achievementGif.src;
-    achievementGif.src = ''; 
-    achievementGif.src = src;
+    // Reset GIF
+    const src = achievementGif.src; achievementGif.src = ''; achievementGif.src = src;
 
-    // --- TEMPORIZADOR LOGRO (9.95s) ---
-    setTimeout(() => { 
-        document.getElementById("achievement-layer").classList.add("hidden-layer"); 
-    }, 9950);
+    // Timer Logro (9.95s)
+    setTimeout(() => { document.getElementById("achievement-layer").classList.add("hidden-layer"); }, 9950);
 }
 
 function loop() {
@@ -121,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // Bloqueo de touch solo si estamos jugando
     window.addEventListener("touchstart", (e) => { 
         if (gameState === 'PLAYING') { e.preventDefault(); monky.flap(); }
     }, {passive: false});
