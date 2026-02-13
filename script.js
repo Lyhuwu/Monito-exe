@@ -27,16 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let gameLoopId;
     let gameState = 'START'; 
-    const WIN_SCORE = 10; 
+    
+    // --- 🟢 CAMBIO 1: META A 7 PUNTOS ---
+    const WIN_SCORE = 7; 
 
     // --- OBJETOS ---
     const monky = {
         x: 50, y: 250, width: 50, height: 50,
         
-        // --- 🟢 AQUÍ ESTÁ EL AJUSTE DE DIFICULTAD ---
+        // Físicas "Easy Mode"
         speed: 0, 
-        gravity: 0.18, // ANTES: 0.25 (Cae más lento)
-        jump: 3.8,     // ANTES: 4.6 (Salto más controlable)
+        gravity: 0.18, 
+        jump: 3.8,     
         
         draw: function() {
             if(imgPlayer.complete && imgPlayer.naturalHeight !== 0) {
@@ -49,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (gameState === 'PLAYING') {
                 this.speed += this.gravity;
                 this.y += this.speed;
-                // Colisión Suelo/Techo
                 if(this.y + this.height >= canvas.height || this.y <= 0) gameOver();
             }
         },
@@ -64,13 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pipes = {
         items: [], 
-        dx: 2.5, // ANTES: 3 (Se mueve más lento hacia la izquierda)
-        gap: 170, // ANTES: 160 (Hueco más grande)
+        dx: 2.5, 
+        gap: 170, 
         
         update: function() {
             if (gameState !== 'PLAYING') return;
 
-            // Generar obstáculo cada 120 frames (antes 100, ahora hay más espacio)
             if(frames % 120 === 0) {
                 let yPos = Math.floor(Math.random() * (canvas.height - this.gap - 100)) - 100;
                 this.items.push({ x: canvas.width, y: yPos });
@@ -102,13 +102,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 let p = this.items[i];
                 let pipeH = 300;
                 
+                // --- 🟢 CAMBIO 2: ESTILO DE BARRAS MEJORADO ---
                 if(imgObstacle.complete && imgObstacle.naturalHeight !== 0) {
+                    // Si tienes imagen, la dibujamos normal
                     ctx.drawImage(imgObstacle, p.x, p.y, 50, pipeH);
                     ctx.drawImage(imgObstacle, p.x, p.y + pipeH + this.gap, 50, pipeH);
                 } else {
-                    ctx.fillStyle = "#555";
+                    // Si NO hay imagen (o falla), dibujamos barras bonitas rosas
+                    ctx.fillStyle = "#f8bbd0"; // Rosa claro (Relleno)
+                    ctx.strokeStyle = "#880e4f"; // Borde oscuro
+                    ctx.lineWidth = 2;
+
+                    // Tubo Arriba
                     ctx.fillRect(p.x, p.y, 50, pipeH);
+                    ctx.strokeRect(p.x, p.y, 50, pipeH);
+                    
+                    // Tubo Abajo
                     ctx.fillRect(p.x, p.y + pipeH + this.gap, 50, pipeH);
+                    ctx.strokeRect(p.x, p.y + pipeH + this.gap, 50, pipeH);
                 }
             }
         },
@@ -147,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
         monky.y = 250; monky.speed = 0;
         pipes.reset();
         
-        // Desbloqueo audio iOS
         winSnd.volume = 0; 
         winSnd.play().then(() => {
             winSnd.pause(); winSnd.currentTime = 0;
@@ -171,22 +181,34 @@ document.addEventListener('DOMContentLoaded', () => {
         gameOverScreen.classList.remove("hidden");
     }
 
-    // --- FINAL ---
+    // --- 🟢 CAMBIO 3: FINAL CINEMÁTICO LENTO ---
     let goalX = 250; let goalY = 250;
     
     function startCinematicEnding() {
         gameState = 'MOVING_TO_HUG';
-        pipes.items = []; 
+        pipes.items = []; // Limpiamos obstáculos
+        
+        // Colocamos a la Monky Meta un poco lejos para que el viaje dure más
+        goalX = canvas.width - 70; 
+        goalY = canvas.height / 2 - 30; // Centrada verticalmente
     }
 
     function animateEnding() {
+        // Dibujar a Sofi (Meta)
         if(imgGoal.complete) ctx.drawImage(imgGoal, goalX, goalY, 60, 60);
         
+        // Calcular distancia
         let dx = goalX - monky.x;
         let dy = goalY - monky.y;
-        monky.x += dx * 0.05; monky.y += dy * 0.05;
+        
+        // MOVIMIENTO SUAVE Y LENTO
+        // Antes era 0.05 (rápido). Ahora es 0.015 (muy lento y suave)
+        monky.x += dx * 0.015; 
+        monky.y += dy * 0.015;
+        
         monky.draw();
 
+        // Detectar si llegaron (cuando están muy cerca)
         if (Math.abs(dx) < 5 && Math.abs(dy) < 5) triggerFinalHug();
     }
 
@@ -206,11 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { gifLogro.style.display = 'none'; }, 9950);
     }
 
-    // --- LISTENERS BOTONES ---
+    // --- LISTENERS ---
     btnStart.addEventListener('click', iniciarJuego);
     btnRetry.addEventListener('click', reiniciarJuego);
 
-    // --- CONTROLES TOQUE ---
     window.addEventListener("touchstart", (e) => { 
         if(e.target.tagName !== 'BUTTON') { e.preventDefault(); monky.flap(); }
     }, {passive: false});
