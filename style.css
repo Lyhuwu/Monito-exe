@@ -80,17 +80,20 @@ button:active { transform: translateY(4px); box-shadow: 0 2px 0 #ad1457; }
     will-change: transform, opacity;
 }
 
-/* 🟢 NUEVA ANIMACIÓN: LATIDO DE CORAZÓN (Más suave y tierna) */
-@keyframes heartbeatEntrance {
-    0% { opacity: 0; transform: scale(0.5); } /* Empieza pequeño */
-    40% { opacity: 1; transform: scale(1.1); } /* Aparece y crece un poco */
-    60% { transform: scale(0.95); } /* Primer latido (se encoge) */
-    80% { transform: scale(1.05); } /* Segundo latido (se expande) */
-    100% { opacity: 1; transform: scale(1); } /* Se queda quieto */
+/* 🟢 NUEVA ANIMACIÓN: INFLADO SUAVE (Lento y progresivo) */
+@keyframes gentleInflate {
+    0% { 
+        opacity: 0; 
+        transform: scale(0.1); /* Empieza muy pequeñito */
+    }
+    100% { 
+        opacity: 1; 
+        transform: scale(1); /* Termina en tamaño normal */
+    }
 }
 
-.sticker-heartbeat {
+.sticker-inflate {
     opacity: 1 !important;
-    /* Más lenta (1.2s) y con ritmo suave (ease-in-out) */
-    animation: heartbeatEntrance 1.2s ease-in-out forwards !important;
+    /* Duración larga (1.8s) y curva de aterrizaje suave */
+    animation: gentleInflate 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
 }
